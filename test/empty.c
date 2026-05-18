@@ -31,16 +31,34 @@
  */
 
 #include "ti_msp_dl_config.h"
+#include "bsp_UART.h"
+
+uint8_t test_uart_buffer[32];
+size_t len = 0;
+
+char   uart_send_buff [] = "SBTI";
+
 
 int main(void)
 {
 
 
     SYSCFG_DL_init();
+    // UART0 init
+    NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
+    uart_receive_start();
+    // UART0 init end
     
     DL_GPIO_setPins(LED_PORT, LED_LED_PIN_PIN);
+
     while (1) 
     {
         
     }
+}
+
+
+void SysTick_Handler(){
+
+    uart_isIDLE();
 }
