@@ -143,6 +143,8 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_MCAN0_CAN_RX_PIN                                     DL_GPIO_PIN_13
 #define GPIO_MCAN0_IOMUX_CAN_RX                                  (IOMUX_PINCM35)
 #define GPIO_MCAN0_IOMUX_CAN_RX_FUNC               IOMUX_PINCM35_PF_CANFD0_CANRX
+#define MCAN0_INST_IRQHandler                                 CANFD0_IRQHandler
+#define MCAN0_INST_INT_IRQN                                     CANFD0_INT_IRQn
 
 
 /* Defines for MCAN0 MCAN RAM configuration */
@@ -151,7 +153,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define MCAN0_INST_MCAN_EXT_ID_FILT_START_ADDR     (48)
 #define MCAN0_INST_MCAN_EXT_ID_FILTER_NUM          (1)
 #define MCAN0_INST_MCAN_TX_BUFF_START_ADDR         (148)
-#define MCAN0_INST_MCAN_TX_BUFF_SIZE               (2)
+#define MCAN0_INST_MCAN_TX_BUFF_SIZE               (8)
 #define MCAN0_INST_MCAN_FIFO_1_START_ADDR          (192)
 #define MCAN0_INST_MCAN_FIFO_1_NUM                 (2)
 #define MCAN0_INST_MCAN_TX_EVENT_START_ADDR        (164)
@@ -159,8 +161,9 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define MCAN0_INST_MCAN_EXT_ID_AND_MASK            (0x1FFFFFFFU)
 #define MCAN0_INST_MCAN_RX_BUFF_START_ADDR         (208)
 #define MCAN0_INST_MCAN_FIFO_0_START_ADDR          (172)
-#define MCAN0_INST_MCAN_FIFO_0_NUM                 (3)
+#define MCAN0_INST_MCAN_FIFO_0_NUM                 (8)
 
+#define MCAN0_INST_MCAN_INTERRUPTS (DL_MCAN_INTERRUPT_RF0N)
 
 
 

@@ -32,11 +32,14 @@
 
 #include "ti_msp_dl_config.h"
 #include "bsp_UART.h"
-
+#include "bsp_CAN.h"
 uint8_t test_uart_buffer[32];
 size_t len = 0;
 
 char   uart_send_buff [] = "SBTI";
+
+uint32_t id = 0x123;
+uint8_t data[4] = {2, 2, 3, 4};
 
 
 int main(void)
@@ -49,6 +52,12 @@ int main(void)
     uart_receive_start();
     // UART0 init end
     
+    // CAN0 init
+    NVIC_EnableIRQ(CANFD0_INT_IRQn);
+
+    // CAN0 init end
+
+    CAN_send_std_frame(id, data, sizeof(data));
     DL_GPIO_setPins(LED_PORT, LED_LED_PIN_PIN);
 
     while (1) 
@@ -58,7 +67,7 @@ int main(void)
 }
 
 
-void SysTick_Handler(){
 
+void SysTick_Handler(){
     uart_isIDLE();
 }
