@@ -46,7 +46,10 @@ char   uart_send_buff[] = "SBTI";
 uint32_t id = 0x123;
 uint8_t data[4] = {2, 2, 3, 4};
 
-float speed = 0.0f;
+float speed_fr = 0.0f;
+float speed_fl = 0.0f;
+float speed_rl = 0.0f;
+float speed_rr = 0.0f;
 volatile uint32_t g_tick = 0;
 volatile uint8_t  g_flag_100hz = 0;
 
@@ -79,5 +82,8 @@ void SysTick_Handler(void)
     if ((g_tick % 10U) == 0U) {
         g_flag_100hz = 1;
     }
-    speed = motor_get_speed(MOTOR_FL);
+    speed_fr = motor_get_speed(MOTOR_FR);
+    speed_fl = motor_get_speed(MOTOR_FL);
+    speed_rr = motor_get_speed(MOTOR_RR);
+    speed_rl = motor_get_speed(MOTOR_RL);
 }

@@ -41,11 +41,24 @@ typedef enum {
  *    RR_OUT    = TIMG6  (2ch PWM)  → RR
  *
  *    FFRONT_IN = TIMG0  (2ch CAPT) → 前方编码器
+ *       - CCP0 : 对应左轮还是右轮？视乎你在 SysConfig 绑定的引脚 (由对应宏映射)
+ *       - CCP1 : 对应另一轮
  *    REAR_IN   = TIMG7  (2ch CAPT) → 后方编码器
+ *       - CCP0 : 对应左轮还是右轮？
+ *       - CCP1 : 对应另一轮
+ *
+ *  【重要引脚接线指引】
+ *   既然遇到了 SysConfig 的 CCP 通道顺序不可调换的问题，
+ *   你只需要把你最终在 SysConfig 里能够选定并锁死的 A 相引脚记录下来即可：
+ *   
+ *   假设你强行分配的结果如下（请根据你 SysConfig 界面实际显示的为准去接线）：
+ *   前左 (MOTOR_FL) 的 A 相线 ➡️ 接到 FFRONT_IN 的 CCP1 引脚 (比如 PA23)
+ *   前右 (MOTOR_FR) 的 A 相线 ➡️ 接到 FFRONT_IN 的 CCP0 引脚 (比如 PA13)
+ *   后左 (MOTOR_RL) 的 A 相线 ➡️ 接到 REAR_IN 的 CCP1 引脚 (比如 PA17)
+ *   后右 (MOTOR_RR) 的 A 相线 ➡️ 接到 REAR_IN 的 CCP0 引脚 (比如 PA18)
  *
  *  PWM:  200Hz (80MHz / 80 prescaler / 5000 period)
- *  CAPT: TIMG0/7=1MHz
- *
+ *  CAPT: TIMG0/7=1MHz (单边沿上升沿触发)
  *  已占用引脚 (不可冲突):
  *    PA10/11=UART0  PA26/27=CAN  PB22=LED  PA19/20=SWD
  *    PA3/4=LFXT  PA5/6=HFXT

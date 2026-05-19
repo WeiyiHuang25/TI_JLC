@@ -131,9 +131,9 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define RL_OUT_INST_CLK_FREQ                                             1000000
 /* GPIO defines for channel 0 */
 #define GPIO_RL_OUT_C0_PORT                                                GPIOA
-#define GPIO_RL_OUT_C0_PIN                                        DL_GPIO_PIN_28
-#define GPIO_RL_OUT_C0_IOMUX                                      (IOMUX_PINCM3)
-#define GPIO_RL_OUT_C0_IOMUX_FUNC                     IOMUX_PINCM3_PF_TIMA1_CCP0
+#define GPIO_RL_OUT_C0_PIN                                        DL_GPIO_PIN_17
+#define GPIO_RL_OUT_C0_IOMUX                                     (IOMUX_PINCM39)
+#define GPIO_RL_OUT_C0_IOMUX_FUNC                    IOMUX_PINCM39_PF_TIMA1_CCP0
 #define GPIO_RL_OUT_C0_IDX                                   DL_TIMER_CC_0_INDEX
 /* GPIO defines for channel 1 */
 #define GPIO_RL_OUT_C1_PORT                                                GPIOA
@@ -174,9 +174,9 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_FFRONT_IN_C0_IOMUX_FUNC                 IOMUX_PINCM53_PF_TIMG0_CCP0
 /* GPIO defines for channel 1 */
 #define GPIO_FFRONT_IN_C1_PORT                                             GPIOA
-#define GPIO_FFRONT_IN_C1_PIN                                     DL_GPIO_PIN_13
-#define GPIO_FFRONT_IN_C1_IOMUX                                  (IOMUX_PINCM35)
-#define GPIO_FFRONT_IN_C1_IOMUX_FUNC                 IOMUX_PINCM35_PF_TIMG0_CCP1
+#define GPIO_FFRONT_IN_C1_PIN                                     DL_GPIO_PIN_24
+#define GPIO_FFRONT_IN_C1_IOMUX                                  (IOMUX_PINCM54)
+#define GPIO_FFRONT_IN_C1_IOMUX_FUNC                 IOMUX_PINCM54_PF_TIMG0_CCP1
 
 /* Defines for REAR_IN */
 #define REAR_IN_INST                                                     (TIMG7)
@@ -185,9 +185,9 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define REAR_IN_INST_LOAD_VALUE                                             (0U)
 /* GPIO defines for channel 0 */
 #define GPIO_REAR_IN_C0_PORT                                               GPIOA
-#define GPIO_REAR_IN_C0_PIN                                       DL_GPIO_PIN_17
-#define GPIO_REAR_IN_C0_IOMUX                                    (IOMUX_PINCM39)
-#define GPIO_REAR_IN_C0_IOMUX_FUNC                   IOMUX_PINCM39_PF_TIMG7_CCP0
+#define GPIO_REAR_IN_C0_PIN                                       DL_GPIO_PIN_28
+#define GPIO_REAR_IN_C0_IOMUX                                     (IOMUX_PINCM3)
+#define GPIO_REAR_IN_C0_IOMUX_FUNC                    IOMUX_PINCM3_PF_TIMG7_CCP0
 /* GPIO defines for channel 1 */
 #define GPIO_REAR_IN_C1_PORT                                               GPIOA
 #define GPIO_REAR_IN_C1_PIN                                       DL_GPIO_PIN_18

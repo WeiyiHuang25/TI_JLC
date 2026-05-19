@@ -52,10 +52,22 @@ typedef struct {
 /* =========================================================================
  * 内部辅助宏: 读取编码器捕获值 (区分 16-bit / 32-bit 定时器)
  * ========================================================================= */
-#define READ_CAP_FFRONT_R()  DL_TimerG_getCaptureCompareValue(FFRONT_IN_INST, DL_TIMER_CC_0_INDEX)
-#define READ_CAP_FFRONT_L()  DL_TimerG_getCaptureCompareValue(FFRONT_IN_INST, DL_TIMER_CC_1_INDEX)
-#define READ_CAP_REAR_R()    DL_TimerG_getCaptureCompareValue(REAR_IN_INST, DL_TIMER_CC_0_INDEX)
-#define READ_CAP_REAR_L()    DL_TimerG_getCaptureCompareValue(REAR_IN_INST, DL_TIMER_CC_1_INDEX)
+
+/* 
+ * ⚠️ 通道映射宏配置 (Channel Mapping) 
+ * 因为 SysConfig 中 TIMGx 的 CCP0 和 CCP1 可能必须绑定到特定的物理引脚且无法交换，
+ * 因此我们通过以下宏定义，在软件层面上把你的物理电机(FL/FR)跟对应的硬件通道(CC0/CC1)自由匹配起来。
+ *
+ * 如果你发现左前轮转动时，读出来的是右前轮的速度，直接在此处把 _CC_0_INDEX 和 _CC_1_INDEX 互相交换即可！
+ */
+
+/* 前轮编码器 (FFRONT_IN) */
+#define READ_CAP_FFRONT_R()  DL_TimerG_getCaptureCompareValue(FFRONT_IN_INST, DL_TIMER_CC_0_INDEX)  // 假设这里绑定的是右前轮
+#define READ_CAP_FFRONT_L()  DL_TimerG_getCaptureCompareValue(FFRONT_IN_INST, DL_TIMER_CC_1_INDEX)  // 假设这里绑定的是左前轮
+
+/* 后轮编码器 (REAR_IN) */
+#define READ_CAP_REAR_R()    DL_TimerG_getCaptureCompareValue(REAR_IN_INST, DL_TIMER_CC_0_INDEX)    // 假设这里绑定的是右后轮
+#define READ_CAP_REAR_L()    DL_TimerG_getCaptureCompareValue(REAR_IN_INST, DL_TIMER_CC_1_INDEX)    // 假设这里绑定的是左后轮
 
 /* 读取定时器当前计数值 (用于计算 τ = 距上一边沿的时间) */
 #define READ_CNT_FFRONT()  DL_TimerG_getTimerCount(FFRONT_IN_INST)
@@ -237,10 +249,10 @@ float motor_get_speed(motor_id_t motor)
     last_period[motor] = period;
 
     /*
-     * 根据 292RPM 推算，由于捕获是双边沿工作，脉冲发生率翻倍。
-     * 为与你直观认知的 RPM 对齐，公式除以 2 进行修正：
+     * 假设你已在 SysConfig 中将捕获模式改为“单边沿（上升沿）”，
+     * 这里的推算直接使用 1 个脉冲 = 1 个外圈波形 的标准公式：
      */
-    float rpm = dir_f * (1000000.0f / period) * 60.0f / (11.0f * 21.3f) / 2.0f;
+    float rpm = dir_f * (1000000.0f / period) * 60.0f / (11.0f * 21.3f);
     last_rpm[motor] = rpm;
     
     return rpm;
