@@ -70,6 +70,11 @@ int main(void)
     {
         if (g_flag_100hz) {
             g_flag_100hz = 0;
+
+            motor_set(MOTOR_FR, false, 2500);
+            motor_set(MOTOR_FL, false, 2500);
+            motor_set(MOTOR_RR, false, 2500);
+            motor_set(MOTOR_RL, false, 2500);
             
         }
     }

@@ -1,17 +1,19 @@
 
 
-
 Breakpoint=D:/rmLearning/TI/test/test/User/bsp/Src/bsp_CAN.c:36, State=BP_STATE_DISABLED
-Breakpoint=D:/rmLearning/TI/test/test/User/bsp/Src/bsp_CAN.c:39, State=BP_STATE_DISABLED
-Breakpoint=D:/rmLearning/TI/test/test/User/bsp/Src/bsp_CAN.c:96, State=BP_STATE_DISABLED
+Breakpoint=D:/rmLearning/TI/test/test/User/bsp/Src/bsp_CAN.c:40:13, State=BP_STATE_DISABLED
+Breakpoint=D:/rmLearning/TI/test/test/User/bsp/Src/bsp_CAN.c:99:5, State=BP_STATE_DISABLED
 Breakpoint=D:/rmLearning/TI/test/test/User/bsp/Src/bsp_CAN.c:120, State=BP_STATE_DISABLED
-Breakpoint=D:/rmLearning/TI/test/test/empty.c:46:5, State=BP_STATE_ON
-GraphedExpression="*(unsigned int*)0x40109078", DisplayFormat=DISPLAY_FORMAT_DEC, Color=#e56a6f, Show=0
-OpenDocument="dl_mcan.c", FilePath="/home/a0232834/.cache/bazel/_bazel_a0232834/80f4e39434c2653bd475b340c747db09/sandbox/linux-sandbox/4929/execroot/__main__/bazel-out/k8-opt/bin/source/ti/driverlib/dl_mcan.c", Line=0
+Breakpoint=D:/rmLearning/TI/test/test/empty.c:60, State=BP_STATE_ON
+GraphedExpression="speed_fr", Color=#e56a6f
+GraphedExpression="speed_fl", Color=#35792b
+GraphedExpression="speed_rl", Color=#769dda
+GraphedExpression="speed_rr", Color=#b14f0d
+OpenDocument="dl_sysctl_mspm0g1x0x_g3x0x.c", FilePath="/home/a0232834/.cache/bazel/_bazel_a0232834/80f4e39434c2653bd475b340c747db09/sandbox/linux-sandbox/4808/execroot/__main__/bazel-out/k8-opt/bin/source/ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.c", Line=0
 OpenDocument="bsp_CAN.c", FilePath="D:/rmLearning/TI/test/test/User/bsp/Src/bsp_CAN.c", Line=28
 OpenDocument="cmsis_gcc.h", FilePath="E:/TI/CCS/mspm0_sdk_2_10_00_04/source/third_party/CMSIS/Core/Include/cmsis_gcc.h", Line=190
 OpenDocument="bsp_UART.c", FilePath="D:/rmLearning/TI/test/test/User/bsp/Src/bsp_UART.c", Line=56
-OpenDocument="empty.c", FilePath="D:/rmLearning/TI/test/test/empty.c", Line=38
+OpenDocument="empty.c", FilePath="D:/rmLearning/TI/test/test/empty.c", Line=52
 OpenDocument="startup_mspm0g350x_ticlang.c", FilePath="E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/msp/m0p/startup_system_files/ticlang/startup_mspm0g350x_ticlang.c", Line=169
 OpenDocument="ti_msp_dl_config.c", FilePath="D:/rmLearning/TI/test/test/Debug/ti_msp_dl_config.c", Line=367
 OpenDocument="dl_sysctl_mspm0g1x0x_g3x0x.h", FilePath="E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.h", Line=2012
@@ -19,21 +21,24 @@ OpenDocument="dl_mcan.h", FilePath="E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/dri
 OpenDocument="dl_gpio.h", FilePath="E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_gpio.h", Line=2075
 OpenDocument="dl_common.h", FilePath="E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_common.h", Line=60
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Disassembly", DockArea=BOTTOM, x=1, y=0, w=576, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=0, w=770, h=490, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VectorCatchIndexMask=254
-OpenWindow="Memory 1", DockArea=BOTTOM, x=3, y=0, w=1179, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x4050F044
-OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=843, h=487, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Watched Data 1", DockArea=BOTTOM, x=2, y=0, w=745, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Functions", DockArea=LEFT, x=0, y=1, w=770, h=264, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Find Results", DockArea=RIGHT, x=0, y=0, w=843, h=267, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=569, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Disassembly", DockArea=BOTTOM, x=2, y=0, w=180, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=0, w=770, h=483, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VectorCatchIndexMask=0
+OpenWindow="Memory 1", DockArea=BOTTOM, x=4, y=0, w=987, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x4050F044
+OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=843, h=480, TabPos=0, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Watched Data 1", DockArea=BOTTOM, x=3, y=0, w=341, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=1, w=770, h=271, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Data Sampling", DockArea=BOTTOM, x=1, y=0, w=1084, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VisibleTab=1, UniformSampleSpacing=0
+OpenWindow="Find Results", DockArea=RIGHT, x=0, y=0, w=843, h=274, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=476, h=941, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
 SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
 TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[324;277;138;100;120;105]
 TableHeader="Vector Catches", SortCol="", SortOrder="ASCENDING", VisibleCols=["";"Vector Catch";"Description"], ColWidths=[50;300;500]
-TableHeader="Break & Tracepoints", SortCol="", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[100;100;806;696]
+TableHeader="Break & Tracepoints", SortCol="", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[100;100;806;740]
 TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[2132;131;100;116;1059]
 TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
 TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[719;207;197;101]
 TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
 TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[200;100;153;499]
+TableHeader="Data Sampling Setup", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Type";"Value";"Min";"Max";"Average";"# Changes";"Min. Change";"Max. Change"], ColWidths=[160;100;105;100;144;144;149;171;171]
+TableHeader="Data Sampling Table", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";" speed_fr";" speed_fl";" speed_rl";" speed_rr"], ColWidths=[100;100;100;100;100;550]
 WatchedExpression="rxMsg", DisplayFormat=DISPLAY_FORMAT_HEX, Window=Watched Data 1
