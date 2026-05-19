@@ -40,6 +40,10 @@
 
 #include "ti_msp_dl_config.h"
 
+DL_TimerA_backupConfig gFRONT_OUTBackup;
+DL_TimerA_backupConfig gRL_OUTBackup;
+DL_TimerG_backupConfig gRR_OUTBackup;
+DL_TimerG_backupConfig gREAR_INBackup;
 DL_MCAN_backupConfig gMCAN0Backup;
 
 /*
@@ -52,11 +56,20 @@ SYSCONFIG_WEAK void SYSCFG_DL_init(void)
     SYSCFG_DL_GPIO_init();
     /* Module-Specific Initializations*/
     SYSCFG_DL_SYSCTL_init();
+    SYSCFG_DL_FRONT_OUT_init();
+    SYSCFG_DL_RL_OUT_init();
+    SYSCFG_DL_RR_OUT_init();
+    SYSCFG_DL_FFRONT_IN_init();
+    SYSCFG_DL_REAR_IN_init();
     SYSCFG_DL_UART_0_init();
     SYSCFG_DL_DMA_init();
     SYSCFG_DL_SYSTICK_init();
     SYSCFG_DL_MCAN0_init();
     /* Ensure backup structures have no valid state */
+	gFRONT_OUTBackup.backupRdy 	= false;
+	gRL_OUTBackup.backupRdy 	= false;
+	gRR_OUTBackup.backupRdy 	= false;
+	gREAR_INBackup.backupRdy 	= false;
 
 	gMCAN0Backup.backupRdy 	= false;
 
@@ -69,6 +82,10 @@ SYSCONFIG_WEAK bool SYSCFG_DL_saveConfiguration(void)
 {
     bool retStatus = true;
 
+	retStatus &= DL_TimerA_saveConfiguration(FRONT_OUT_INST, &gFRONT_OUTBackup);
+	retStatus &= DL_TimerA_saveConfiguration(RL_OUT_INST, &gRL_OUTBackup);
+	retStatus &= DL_TimerG_saveConfiguration(RR_OUT_INST, &gRR_OUTBackup);
+	retStatus &= DL_TimerG_saveConfiguration(REAR_IN_INST, &gREAR_INBackup);
 	retStatus &= DL_MCAN_saveConfiguration(MCAN0_INST, &gMCAN0Backup);
 
     return retStatus;
@@ -79,6 +96,10 @@ SYSCONFIG_WEAK bool SYSCFG_DL_restoreConfiguration(void)
 {
     bool retStatus = true;
 
+	retStatus &= DL_TimerA_restoreConfiguration(FRONT_OUT_INST, &gFRONT_OUTBackup, false);
+	retStatus &= DL_TimerA_restoreConfiguration(RL_OUT_INST, &gRL_OUTBackup, false);
+	retStatus &= DL_TimerG_restoreConfiguration(RR_OUT_INST, &gRR_OUTBackup, false);
+	retStatus &= DL_TimerG_restoreConfiguration(REAR_IN_INST, &gREAR_INBackup, false);
 	retStatus &= DL_MCAN_restoreConfiguration(MCAN0_INST, &gMCAN0Backup);
 
     return retStatus;
@@ -88,6 +109,11 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
 {
     DL_GPIO_reset(GPIOA);
     DL_GPIO_reset(GPIOB);
+    DL_TimerA_reset(FRONT_OUT_INST);
+    DL_TimerA_reset(RL_OUT_INST);
+    DL_TimerG_reset(RR_OUT_INST);
+    DL_TimerG_reset(FFRONT_IN_INST);
+    DL_TimerG_reset(REAR_IN_INST);
     DL_UART_Main_reset(UART_0_INST);
 
 
@@ -95,6 +121,11 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
 
     DL_GPIO_enablePower(GPIOA);
     DL_GPIO_enablePower(GPIOB);
+    DL_TimerA_enablePower(FRONT_OUT_INST);
+    DL_TimerA_enablePower(RL_OUT_INST);
+    DL_TimerG_enablePower(RR_OUT_INST);
+    DL_TimerG_enablePower(FFRONT_IN_INST);
+    DL_TimerG_enablePower(REAR_IN_INST);
     DL_UART_Main_enablePower(UART_0_INST);
 
 
@@ -109,6 +140,28 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
     DL_GPIO_initPeripheralAnalogFunction(GPIO_HFXOUT_IOMUX);
     DL_GPIO_initPeripheralAnalogFunction(GPIO_LFXIN_IOMUX);
     DL_GPIO_initPeripheralAnalogFunction(GPIO_LFXOUT_IOMUX);
+
+    DL_GPIO_initPeripheralOutputFunction(GPIO_FRONT_OUT_C0_IOMUX,GPIO_FRONT_OUT_C0_IOMUX_FUNC);
+    DL_GPIO_enableOutput(GPIO_FRONT_OUT_C0_PORT, GPIO_FRONT_OUT_C0_PIN);
+    DL_GPIO_initPeripheralOutputFunction(GPIO_FRONT_OUT_C1_IOMUX,GPIO_FRONT_OUT_C1_IOMUX_FUNC);
+    DL_GPIO_enableOutput(GPIO_FRONT_OUT_C1_PORT, GPIO_FRONT_OUT_C1_PIN);
+    DL_GPIO_initPeripheralOutputFunction(GPIO_FRONT_OUT_C2_IOMUX,GPIO_FRONT_OUT_C2_IOMUX_FUNC);
+    DL_GPIO_enableOutput(GPIO_FRONT_OUT_C2_PORT, GPIO_FRONT_OUT_C2_PIN);
+    DL_GPIO_initPeripheralOutputFunction(GPIO_FRONT_OUT_C3_IOMUX,GPIO_FRONT_OUT_C3_IOMUX_FUNC);
+    DL_GPIO_enableOutput(GPIO_FRONT_OUT_C3_PORT, GPIO_FRONT_OUT_C3_PIN);
+    DL_GPIO_initPeripheralOutputFunction(GPIO_RL_OUT_C0_IOMUX,GPIO_RL_OUT_C0_IOMUX_FUNC);
+    DL_GPIO_enableOutput(GPIO_RL_OUT_C0_PORT, GPIO_RL_OUT_C0_PIN);
+    DL_GPIO_initPeripheralOutputFunction(GPIO_RL_OUT_C1_IOMUX,GPIO_RL_OUT_C1_IOMUX_FUNC);
+    DL_GPIO_enableOutput(GPIO_RL_OUT_C1_PORT, GPIO_RL_OUT_C1_PIN);
+    DL_GPIO_initPeripheralOutputFunction(GPIO_RR_OUT_C0_IOMUX,GPIO_RR_OUT_C0_IOMUX_FUNC);
+    DL_GPIO_enableOutput(GPIO_RR_OUT_C0_PORT, GPIO_RR_OUT_C0_PIN);
+    DL_GPIO_initPeripheralOutputFunction(GPIO_RR_OUT_C1_IOMUX,GPIO_RR_OUT_C1_IOMUX_FUNC);
+    DL_GPIO_enableOutput(GPIO_RR_OUT_C1_PORT, GPIO_RR_OUT_C1_PIN);
+
+    DL_GPIO_initPeripheralInputFunction(GPIO_FFRONT_IN_C0_IOMUX,GPIO_FFRONT_IN_C0_IOMUX_FUNC);
+    DL_GPIO_initPeripheralInputFunction(GPIO_FFRONT_IN_C1_IOMUX,GPIO_FFRONT_IN_C1_IOMUX_FUNC);
+    DL_GPIO_initPeripheralInputFunction(GPIO_REAR_IN_C0_IOMUX,GPIO_REAR_IN_C0_IOMUX_FUNC);
+    DL_GPIO_initPeripheralInputFunction(GPIO_REAR_IN_C1_IOMUX,GPIO_REAR_IN_C1_IOMUX_FUNC);
 
     DL_GPIO_initPeripheralOutputFunction(
         GPIO_UART_0_IOMUX_TX, GPIO_UART_0_IOMUX_TX_FUNC);
@@ -246,6 +299,323 @@ SYSCONFIG_WEAK void SYSCFG_DL_SYSCTL_init(void)
 
 }
 
+
+/*
+ * Timer clock configuration to be sourced by  / 1 (80000000 Hz)
+ * timerClkFreq = (timerClkSrc / (timerClkDivRatio * (timerClkPrescale + 1)))
+ *   1000000 Hz = 80000000 Hz / (1 * (79 + 1))
+ */
+static const DL_TimerA_ClockConfig gFRONT_OUTClockConfig = {
+    .clockSel = DL_TIMER_CLOCK_BUSCLK,
+    .divideRatio = DL_TIMER_CLOCK_DIVIDE_1,
+    .prescale = 79U
+};
+
+static const DL_TimerA_PWMConfig gFRONT_OUTConfig = {
+    .pwmMode = DL_TIMER_PWM_MODE_EDGE_ALIGN,
+    .period = 5000,
+    .isTimerWithFourCC = true,
+    .startTimer = DL_TIMER_START,
+};
+
+SYSCONFIG_WEAK void SYSCFG_DL_FRONT_OUT_init(void) {
+
+    DL_TimerA_setClockConfig(
+        FRONT_OUT_INST, (DL_TimerA_ClockConfig *) &gFRONT_OUTClockConfig);
+
+    DL_TimerA_initPWMMode(
+        FRONT_OUT_INST, (DL_TimerA_PWMConfig *) &gFRONT_OUTConfig);
+
+    // Set Counter control to the smallest CC index being used
+    DL_TimerA_setCounterControl(FRONT_OUT_INST,DL_TIMER_CZC_CCCTL0_ZCOND,DL_TIMER_CAC_CCCTL0_ACOND,DL_TIMER_CLC_CCCTL0_LCOND);
+
+    DL_TimerA_setCaptureCompareOutCtl(FRONT_OUT_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
+		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMERA_CAPTURE_COMPARE_0_INDEX);
+
+    DL_TimerA_setCaptCompUpdateMethod(FRONT_OUT_INST, DL_TIMER_CC_UPDATE_METHOD_ZERO_EVT, DL_TIMERA_CAPTURE_COMPARE_0_INDEX);
+    DL_TimerA_setCaptureCompareValue(FRONT_OUT_INST, 5000, DL_TIMER_CC_0_INDEX);
+
+    DL_TimerA_setCaptureCompareOutCtl(FRONT_OUT_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
+		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMERA_CAPTURE_COMPARE_1_INDEX);
+
+    DL_TimerA_setCaptCompUpdateMethod(FRONT_OUT_INST, DL_TIMER_CC_UPDATE_METHOD_ZERO_EVT, DL_TIMERA_CAPTURE_COMPARE_1_INDEX);
+    DL_TimerA_setCaptureCompareValue(FRONT_OUT_INST, 5000, DL_TIMER_CC_1_INDEX);
+
+    DL_TimerA_setCaptureCompareOutCtl(FRONT_OUT_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
+		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMERA_CAPTURE_COMPARE_2_INDEX);
+
+    DL_TimerA_setCaptCompUpdateMethod(FRONT_OUT_INST, DL_TIMER_CC_UPDATE_METHOD_ZERO_EVT, DL_TIMERA_CAPTURE_COMPARE_2_INDEX);
+    DL_TimerA_setCaptureCompareValue(FRONT_OUT_INST, 5000, DL_TIMER_CC_2_INDEX);
+
+    DL_TimerA_setCaptureCompareOutCtl(FRONT_OUT_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
+		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMERA_CAPTURE_COMPARE_3_INDEX);
+
+    DL_TimerA_setCaptCompUpdateMethod(FRONT_OUT_INST, DL_TIMER_CC_UPDATE_METHOD_ZERO_EVT, DL_TIMERA_CAPTURE_COMPARE_3_INDEX);
+    DL_TimerA_setCaptureCompareValue(FRONT_OUT_INST, 5000, DL_TIMER_CC_3_INDEX);
+
+    DL_TimerA_enableClock(FRONT_OUT_INST);
+
+
+    
+    DL_TimerA_setCCPDirection(FRONT_OUT_INST , DL_TIMER_CC0_OUTPUT | DL_TIMER_CC1_OUTPUT | DL_TIMER_CC2_OUTPUT | DL_TIMER_CC3_OUTPUT );
+    DL_TimerA_enableShadowFeatures(FRONT_OUT_INST);
+
+
+}
+/*
+ * Timer clock configuration to be sourced by  / 1 (80000000 Hz)
+ * timerClkFreq = (timerClkSrc / (timerClkDivRatio * (timerClkPrescale + 1)))
+ *   1000000 Hz = 80000000 Hz / (1 * (79 + 1))
+ */
+static const DL_TimerA_ClockConfig gRL_OUTClockConfig = {
+    .clockSel = DL_TIMER_CLOCK_BUSCLK,
+    .divideRatio = DL_TIMER_CLOCK_DIVIDE_1,
+    .prescale = 79U
+};
+
+static const DL_TimerA_PWMConfig gRL_OUTConfig = {
+    .pwmMode = DL_TIMER_PWM_MODE_EDGE_ALIGN,
+    .period = 5000,
+    .isTimerWithFourCC = false,
+    .startTimer = DL_TIMER_START,
+};
+
+SYSCONFIG_WEAK void SYSCFG_DL_RL_OUT_init(void) {
+
+    DL_TimerA_setClockConfig(
+        RL_OUT_INST, (DL_TimerA_ClockConfig *) &gRL_OUTClockConfig);
+
+    DL_TimerA_initPWMMode(
+        RL_OUT_INST, (DL_TimerA_PWMConfig *) &gRL_OUTConfig);
+
+    // Set Counter control to the smallest CC index being used
+    DL_TimerA_setCounterControl(RL_OUT_INST,DL_TIMER_CZC_CCCTL0_ZCOND,DL_TIMER_CAC_CCCTL0_ACOND,DL_TIMER_CLC_CCCTL0_LCOND);
+
+    DL_TimerA_setCaptureCompareOutCtl(RL_OUT_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
+		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMERA_CAPTURE_COMPARE_0_INDEX);
+
+    DL_TimerA_setCaptCompUpdateMethod(RL_OUT_INST, DL_TIMER_CC_UPDATE_METHOD_IMMEDIATE, DL_TIMERA_CAPTURE_COMPARE_0_INDEX);
+    DL_TimerA_setCaptureCompareValue(RL_OUT_INST, 5000, DL_TIMER_CC_0_INDEX);
+
+    DL_TimerA_setCaptureCompareOutCtl(RL_OUT_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
+		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMERA_CAPTURE_COMPARE_1_INDEX);
+
+    DL_TimerA_setCaptCompUpdateMethod(RL_OUT_INST, DL_TIMER_CC_UPDATE_METHOD_ZERO_EVT, DL_TIMERA_CAPTURE_COMPARE_1_INDEX);
+    DL_TimerA_setCaptureCompareValue(RL_OUT_INST, 5000, DL_TIMER_CC_1_INDEX);
+
+    DL_TimerA_enableClock(RL_OUT_INST);
+
+
+    
+    DL_TimerA_setCCPDirection(RL_OUT_INST , DL_TIMER_CC0_OUTPUT | DL_TIMER_CC1_OUTPUT );
+    DL_TimerA_enableShadowFeatures(RL_OUT_INST);
+
+
+}
+/*
+ * Timer clock configuration to be sourced by  / 1 (80000000 Hz)
+ * timerClkFreq = (timerClkSrc / (timerClkDivRatio * (timerClkPrescale + 1)))
+ *   1000000 Hz = 80000000 Hz / (1 * (79 + 1))
+ */
+static const DL_TimerG_ClockConfig gRR_OUTClockConfig = {
+    .clockSel = DL_TIMER_CLOCK_BUSCLK,
+    .divideRatio = DL_TIMER_CLOCK_DIVIDE_1,
+    .prescale = 79U
+};
+
+static const DL_TimerG_PWMConfig gRR_OUTConfig = {
+    .pwmMode = DL_TIMER_PWM_MODE_EDGE_ALIGN,
+    .period = 5000,
+    .isTimerWithFourCC = false,
+    .startTimer = DL_TIMER_START,
+};
+
+SYSCONFIG_WEAK void SYSCFG_DL_RR_OUT_init(void) {
+
+    DL_TimerG_setClockConfig(
+        RR_OUT_INST, (DL_TimerG_ClockConfig *) &gRR_OUTClockConfig);
+
+    DL_TimerG_initPWMMode(
+        RR_OUT_INST, (DL_TimerG_PWMConfig *) &gRR_OUTConfig);
+
+    // Set Counter control to the smallest CC index being used
+    DL_TimerG_setCounterControl(RR_OUT_INST,DL_TIMER_CZC_CCCTL0_ZCOND,DL_TIMER_CAC_CCCTL0_ACOND,DL_TIMER_CLC_CCCTL0_LCOND);
+
+    DL_TimerG_setCaptureCompareOutCtl(RR_OUT_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
+		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMERG_CAPTURE_COMPARE_0_INDEX);
+
+    DL_TimerG_setCaptCompUpdateMethod(RR_OUT_INST, DL_TIMER_CC_UPDATE_METHOD_ZERO_EVT, DL_TIMERG_CAPTURE_COMPARE_0_INDEX);
+    DL_TimerG_setCaptureCompareValue(RR_OUT_INST, 5000, DL_TIMER_CC_0_INDEX);
+
+    DL_TimerG_setCaptureCompareOutCtl(RR_OUT_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
+		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMERG_CAPTURE_COMPARE_1_INDEX);
+
+    DL_TimerG_setCaptCompUpdateMethod(RR_OUT_INST, DL_TIMER_CC_UPDATE_METHOD_ZERO_EVT, DL_TIMERG_CAPTURE_COMPARE_1_INDEX);
+    DL_TimerG_setCaptureCompareValue(RR_OUT_INST, 5000, DL_TIMER_CC_1_INDEX);
+
+    DL_TimerG_enableClock(RR_OUT_INST);
+
+
+    
+    DL_TimerG_setCCPDirection(RR_OUT_INST , DL_TIMER_CC0_OUTPUT | DL_TIMER_CC1_OUTPUT );
+    DL_TimerG_enableShadowFeatures(RR_OUT_INST);
+
+
+}
+
+
+
+/*
+ * Timer clock configuration to be sourced by BUSCLK /  (40000000 Hz)
+ * timerClkFreq = (timerClkSrc / (timerClkDivRatio * (timerClkPrescale + 1)))
+ *   1000000 Hz = 40000000 Hz / (1 * (39 + 1))
+ */
+static const DL_TimerG_ClockConfig gFFRONT_INClockConfig = {
+    .clockSel    = DL_TIMER_CLOCK_BUSCLK,
+    .divideRatio = DL_TIMER_CLOCK_DIVIDE_1,
+    .prescale = 39U
+};
+
+/*
+ * Timer load value (where the counter starts from) is calculated as (timerPeriod * timerClockFreq) - 1
+ * FFRONT_IN_INST_LOAD_VALUE = (0 ms * 1000000 Hz) - 1
+ */
+
+SYSCONFIG_WEAK void SYSCFG_DL_FFRONT_IN_init(void) {
+
+    DL_TimerG_setClockConfig(FFRONT_IN_INST,
+        (DL_TimerG_ClockConfig *) &gFFRONT_INClockConfig);
+
+    DL_TimerG_setLoadValue(FFRONT_IN_INST,-1);
+
+    DL_TimerG_setCounterMode(FFRONT_IN_INST,DL_TIMER_COUNT_MODE_UP);
+
+    DL_TimerG_setCounterRepeatMode(FFRONT_IN_INST,DL_TIMER_REPEAT_MODE_ENABLED);
+
+    DL_TimerG_setCounterValueAfterEnable(FFRONT_IN_INST,DL_TIMER_COUNT_AFTER_EN_ZERO);
+
+    DL_TimerG_setCaptureCompareCtl(FFRONT_IN_INST,
+    DL_TIMER_CC_MODE_CAPTURE, (DL_TIMER_CC_ZCOND_NONE | DL_TIMER_CC_ACOND_TIMCLK | DL_TIMER_CC_CCOND_TRIG_EDGE),
+    DL_TIMER_CC_0_INDEX);
+
+    DL_TimerG_setCaptureCompareInput(FFRONT_IN_INST,
+        DL_TIMER_CC_INPUT_INV_NOINVERT,DL_TIMER_CC_IN_SEL_CCPX, DL_TIMER_CC_0_INDEX);
+
+    DL_TimerG_setCaptureCompareInputFilter(FFRONT_IN_INST,
+        DL_TIMER_CC_INPUT_FILT_CPV_VOTING,
+        DL_TIMER_CC_INPUT_FILT_FP_PER_3,
+        DL_TIMER_CC_0_INDEX
+    );
+    DL_Timer_enableCaptureCompareInputFilter(FFRONT_IN_INST,
+        DL_TIMER_CC_0_INDEX);
+
+    DL_TimerG_setCaptureCompareCtl(FFRONT_IN_INST,
+    DL_TIMER_CC_MODE_CAPTURE, (DL_TIMER_CC_ZCOND_NONE | DL_TIMER_CC_ACOND_TIMCLK | DL_TIMER_CC_CCOND_TRIG_EDGE),
+    DL_TIMER_CC_1_INDEX);
+
+    DL_TimerG_setCaptureCompareInput(FFRONT_IN_INST,
+        DL_TIMER_CC_INPUT_INV_NOINVERT,DL_TIMER_CC_IN_SEL_CCPX, DL_TIMER_CC_1_INDEX);
+
+    DL_TimerG_setCaptureCompareInputFilter(FFRONT_IN_INST,
+        DL_TIMER_CC_INPUT_FILT_CPV_VOTING,
+        DL_TIMER_CC_INPUT_FILT_FP_PER_3,
+        DL_TIMER_CC_1_INDEX
+    );
+    DL_Timer_enableCaptureCompareInputFilter(FFRONT_IN_INST,
+        DL_TIMER_CC_1_INDEX);
+
+
+    DL_TimerG_setCounterControl(FFRONT_IN_INST,
+        DL_TIMER_CZC_CCCTL0_ZCOND,
+        DL_TIMER_CAC_CCCTL0_ACOND,
+        DL_TIMER_CLC_CCCTL0_LCOND
+    );
+
+    DL_TimerG_startCounter(FFRONT_IN_INST);
+
+    DL_TimerG_enableClock(FFRONT_IN_INST);
+
+}
+
+/*
+ * Timer clock configuration to be sourced by BUSCLK /  (80000000 Hz)
+ * timerClkFreq = (timerClkSrc / (timerClkDivRatio * (timerClkPrescale + 1)))
+ *   1000000 Hz = 80000000 Hz / (1 * (79 + 1))
+ */
+static const DL_TimerG_ClockConfig gREAR_INClockConfig = {
+    .clockSel    = DL_TIMER_CLOCK_BUSCLK,
+    .divideRatio = DL_TIMER_CLOCK_DIVIDE_1,
+    .prescale = 79U
+};
+
+/*
+ * Timer load value (where the counter starts from) is calculated as (timerPeriod * timerClockFreq) - 1
+ * REAR_IN_INST_LOAD_VALUE = (0 ms * 1000000 Hz) - 1
+ */
+
+SYSCONFIG_WEAK void SYSCFG_DL_REAR_IN_init(void) {
+
+    DL_TimerG_setClockConfig(REAR_IN_INST,
+        (DL_TimerG_ClockConfig *) &gREAR_INClockConfig);
+
+    DL_TimerG_setLoadValue(REAR_IN_INST,-1);
+
+    DL_TimerG_setCounterMode(REAR_IN_INST,DL_TIMER_COUNT_MODE_UP);
+
+    DL_TimerG_setCounterRepeatMode(REAR_IN_INST,DL_TIMER_REPEAT_MODE_ENABLED);
+
+    DL_TimerG_setCounterValueAfterEnable(REAR_IN_INST,DL_TIMER_COUNT_AFTER_EN_ZERO);
+
+    DL_TimerG_setCaptureCompareCtl(REAR_IN_INST,
+    DL_TIMER_CC_MODE_CAPTURE, (DL_TIMER_CC_ZCOND_NONE | DL_TIMER_CC_ACOND_TIMCLK | DL_TIMER_CC_CCOND_TRIG_EDGE),
+    DL_TIMER_CC_0_INDEX);
+
+    DL_TimerG_setCaptureCompareInput(REAR_IN_INST,
+        DL_TIMER_CC_INPUT_INV_NOINVERT,DL_TIMER_CC_IN_SEL_CCPX, DL_TIMER_CC_0_INDEX);
+
+    DL_TimerG_setCaptureCompareInputFilter(REAR_IN_INST,
+        DL_TIMER_CC_INPUT_FILT_CPV_VOTING,
+        DL_TIMER_CC_INPUT_FILT_FP_PER_3,
+        DL_TIMER_CC_0_INDEX
+    );
+    DL_Timer_enableCaptureCompareInputFilter(REAR_IN_INST,
+        DL_TIMER_CC_0_INDEX);
+
+    DL_TimerG_setCaptureCompareCtl(REAR_IN_INST,
+    DL_TIMER_CC_MODE_CAPTURE, (DL_TIMER_CC_ZCOND_NONE | DL_TIMER_CC_ACOND_TIMCLK | DL_TIMER_CC_CCOND_TRIG_EDGE),
+    DL_TIMER_CC_1_INDEX);
+
+    DL_TimerG_setCaptureCompareInput(REAR_IN_INST,
+        DL_TIMER_CC_INPUT_INV_NOINVERT,DL_TIMER_CC_IN_SEL_CCPX, DL_TIMER_CC_1_INDEX);
+
+    DL_TimerG_setCaptureCompareInputFilter(REAR_IN_INST,
+        DL_TIMER_CC_INPUT_FILT_CPV_VOTING,
+        DL_TIMER_CC_INPUT_FILT_FP_PER_3,
+        DL_TIMER_CC_1_INDEX
+    );
+    DL_Timer_enableCaptureCompareInputFilter(REAR_IN_INST,
+        DL_TIMER_CC_1_INDEX);
+
+
+    DL_TimerG_setCounterControl(REAR_IN_INST,
+        DL_TIMER_CZC_CCCTL0_ZCOND,
+        DL_TIMER_CAC_CCCTL0_ACOND,
+        DL_TIMER_CLC_CCCTL0_LCOND
+    );
+
+    DL_TimerG_startCounter(REAR_IN_INST);
+
+    DL_TimerG_enableClock(REAR_IN_INST);
+
+}
 
 static const DL_UART_Main_ClockConfig gUART_0ClockConfig = {
     .clockSel    = DL_UART_MAIN_CLOCK_BUSCLK,

@@ -33,41 +33,51 @@
 #include "ti_msp_dl_config.h"
 #include "bsp_UART.h"
 #include "bsp_CAN.h"
-uint8_t test_uart_buffer[32];
+#include "bsp_PWM.h"
+
+
+// test
+
+uint8_t test_uart_buffer[64];
 size_t len = 0;
 
-char   uart_send_buff [] = "SBTI";
+char   uart_send_buff[] = "SBTI";
 
 uint32_t id = 0x123;
 uint8_t data[4] = {2, 2, 3, 4};
 
+float speed = 0.0f;
+volatile uint32_t g_tick = 0;
+volatile uint8_t  g_flag_100hz = 0;
+
+
+// test end
 
 int main(void)
 {
-
-
     SYSCFG_DL_init();
-    // UART0 init
+    NVIC_EnableIRQ(CANFD0_INT_IRQn);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     uart_receive_start();
-    // UART0 init end
     
-    // CAN0 init
-    NVIC_EnableIRQ(CANFD0_INT_IRQn);
 
-    // CAN0 init end
-
-    CAN_send_std_frame(id, data, sizeof(data));
     DL_GPIO_setPins(LED_PORT, LED_LED_PIN_PIN);
 
-    while (1) 
+    while (1)
     {
-        
+        if (g_flag_100hz) {
+            g_flag_100hz = 0;
+            
+        }
     }
 }
 
-
-
-void SysTick_Handler(){
+void SysTick_Handler(void)
+{
     uart_isIDLE();
+    g_tick++;
+    if ((g_tick % 10U) == 0U) {
+        g_flag_100hz = 1;
+    }
+    speed = motor_get_speed(MOTOR_FL);
 }

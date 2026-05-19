@@ -3,10 +3,11 @@
 void handleCanRxMessage(void);
 
 
-void CAN_send_std_frame(uint32_t id, uint8_t* data, uint16_t len)
+bool CAN_send_std_frame(uint32_t id, uint8_t* data, uint16_t len)
 {
     DL_MCAN_TxBufElement txMsg;
     DL_MCAN_TxFIFOStatus txfifoStatus;
+    uint32_t timeout;
 
     /* Initialize message to transmit. */
     /* Identifier Value. */
@@ -29,8 +30,16 @@ void CAN_send_std_frame(uint32_t id, uint8_t* data, uint16_t len)
     txMsg.mm = 0xAAU;
     /* Data bytes. */
     for (int i = 0; i < len; i++) txMsg.data[i] = data[i];
+
+    /* Wait for CAN to enter NORMAL mode, with timeout */
+    timeout = CAN_SEND_TIMEOUT;
     while (DL_MCAN_OPERATION_MODE_NORMAL != DL_MCAN_getOpMode(CANFD0))
-        ;
+    {
+        if (--timeout == 0U)
+        {
+            return false;
+        }
+    }
 
     /* Write Tx Message to the Message RAM (FIFO). */
     DL_MCAN_writeMsgRam(CANFD0, DL_MCAN_MEM_TYPE_FIFO, 0, &txMsg);
@@ -43,13 +52,16 @@ void CAN_send_std_frame(uint32_t id, uint8_t* data, uint16_t len)
 
     /* Add request for transmission. */
     DL_MCAN_TXBufAddReq(CANFD0, txfifoStatus.putIdx);
+
+    return true;
 }
 
 
-void CAN_send_ext_frame(uint32_t id, uint8_t* data, uint16_t len)
+bool CAN_send_ext_frame(uint32_t id, uint8_t* data, uint16_t len)
 {
     DL_MCAN_TxBufElement txMsg;
     DL_MCAN_TxFIFOStatus txfifoStatus;
+    uint32_t timeout;
 
     /* Initialize message to transmit. */
     /* Identifier Value. */
@@ -72,8 +84,16 @@ void CAN_send_ext_frame(uint32_t id, uint8_t* data, uint16_t len)
     txMsg.mm = 0xAAU;
     /* Data bytes. */
     for (int i = 0; i < len; i++) txMsg.data[i] = data[i];
+
+    /* Wait for CAN to enter NORMAL mode, with timeout */
+    timeout = CAN_SEND_TIMEOUT;
     while (DL_MCAN_OPERATION_MODE_NORMAL != DL_MCAN_getOpMode(CANFD0))
-        ;
+    {
+        if (--timeout == 0U)
+        {
+            return false;
+        }
+    }
 
     /* Write Tx Message to the Message RAM (FIFO). */
     DL_MCAN_writeMsgRam(CANFD0, DL_MCAN_MEM_TYPE_FIFO, 0, &txMsg);
@@ -86,6 +106,8 @@ void CAN_send_ext_frame(uint32_t id, uint8_t* data, uint16_t len)
 
     /* Add request for transmission. */
     DL_MCAN_TXBufAddReq(CANFD0, txfifoStatus.putIdx);
+
+    return true;
 }
 
 
