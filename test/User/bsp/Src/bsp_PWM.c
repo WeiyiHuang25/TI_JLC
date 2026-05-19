@@ -167,71 +167,81 @@ void motor_all_coast(void)
  *   边沿多→delta大→速度快, 与真实速度成正比, 适合 PID 反馈。
  * ========================================================================= */
 
-/* 声明全局变量，供中断收集脉冲 */
-volatile uint32_t g_ffront_edges = 0;
-volatile uint32_t g_ffront_last_cap = 0;
-volatile uint32_t g_rear_edges = 0;
-volatile uint32_t g_rear_last_cap = 0;
-
 float motor_get_speed(motor_id_t motor)
 {
     if (motor >= MOTOR_NUM) return 0.0f;
 
-    /* 第一次调用时自动初始化并开启捕获硬件中断 */
-    static bool init_done = false;
-    if (!init_done) {
-        DL_TimerG_enableInterrupt(FFRONT_IN_INST, DL_TIMER_INTERRUPT_CC0_DN_EVENT);
-        NVIC_EnableIRQ(FFRONT_IN_INST_INT_IRQN);
-        
-        DL_TimerG_enableInterrupt(REAR_IN_INST, DL_TIMER_INTERRUPT_CC0_DN_EVENT);
-        NVIC_EnableIRQ(REAR_IN_INST_INT_IRQN);
-        init_done = true;
-    }
+    static uint32_t last_count[MOTOR_NUM] = {0};
+    static float last_rpm[MOTOR_NUM] = {0};
+    static float last_period[MOTOR_NUM] = {0};
 
-    /* 静态变量保存上次读到的中断数据 */
-    static uint32_t last_edges[MOTOR_NUM] = {0};
-    static uint32_t last_caps[MOTOR_NUM] = {0};
+    uint32_t current_count = 0;
+    uint32_t now_ticks = 0;
 
-    uint32_t cur_edges = 0;
-    uint32_t cur_cap = 0;
-
-    /* 原子读取中断里累加的数据 */
     switch (motor) {
     case MOTOR_FL: 
-    case MOTOR_FR:
-        cur_edges = g_ffront_edges;
-        cur_cap = g_ffront_last_cap;
+        current_count = READ_CAP_FFRONT_L(); 
+        now_ticks = READ_CNT_FFRONT();
+        break;
+    case MOTOR_FR: 
+        current_count = READ_CAP_FFRONT_R(); 
+        now_ticks = READ_CNT_FFRONT();
         break;
     case MOTOR_RL: 
-    case MOTOR_RR:
-        cur_edges = g_rear_edges;
-        cur_cap = g_rear_last_cap;
+        current_count = READ_CAP_REAR_L(); 
+        now_ticks = READ_CNT_REAR();
+        break;
+    case MOTOR_RR: 
+        current_count = READ_CAP_REAR_R(); 
+        now_ticks = READ_CNT_REAR();
         break;
     default: return 0.0f;
     }
 
-    uint32_t d_edges = cur_edges - last_edges[motor];
-    uint32_t dt = (cur_cap - last_caps[motor]) & 0xFFFFU;
+    /* 与上次边沿时间的差值 */
+    uint32_t diff = (current_count - last_count[motor]) & 0xFFFFU;
+    
+    /* 距离最后一个边沿到现在过去的时间量 */
+    uint32_t time_since_last = (now_ticks - current_count) & 0xFFFFU;
 
-    last_edges[motor] = cur_edges;
-    last_caps[motor] = cur_cap;
-
-    /* 获取设定的方向 */
-    float dir_f = g_motor[motor].direction ? 1.0f : -1.0f;
-
-    /* 防除0及停转处理 (如果 1ms 内部没有产生新脉冲边沿) */
-    if (d_edges == 0 || dt == 0) {
+    /* 超时停转检测：距最后一次脉冲超过 50ms (50000us)，视为停转 */
+    if (time_since_last > 50000) {
+        last_rpm[motor] = 0.0f;
+        last_period[motor] = 0.0f;
         return 0.0f;
     }
 
+    /* 本次 1ms 内没有抓到新脉冲：保持平滑输出 */
+    if (diff == 0) {
+        return last_rpm[motor];
+    }
+
+    last_count[motor] = current_count;
+
+    float dir_f = g_motor[motor].direction ? 1.0f : -1.0f;
+
     /* 
-     * 精确 M/T 法测速公式：
-     * 由于 d_edges 是期间经过的确切脉冲数，dt 是经过的精确微秒时间，
-     * 所以 1秒内的脉冲绝对频率 = 1000000.0 * d_edges / dt
+     * 核心修复：多边沿时间解算过滤
+     * 由于轮询频率低于边沿发生频率，diff 中可能包含了 2个甚至3个 周期的总时间。
+     * 估算包含的周期数 N，将其除回去得到真实的【单边沿间隔时间】
      */
-    float rpm = dir_f * (1000000.0f * (float)d_edges / (float)dt) * 60.0f / (11.0f * 21.3f);
+    float period = (float)diff;
+    if (last_period[motor] > 0.0f) {
+        int N = (int)(period / last_period[motor] + 0.5f);
+        if (N < 1) N = 1;
+        period = period / (float)N; 
+    }
+    
+    // 如果干扰导致值太小则予以忽略
+    if (period < 1.0f) period = 1.0f;
+    last_period[motor] = period;
+
+    /*
+     * 根据 292RPM 推算，由于捕获是双边沿工作，脉冲发生率翻倍。
+     * 为与你直观认知的 RPM 对齐，公式除以 2 进行修正：
+     */
+    float rpm = dir_f * (1000000.0f / period) * 60.0f / (11.0f * 21.3f) / 2.0f;
+    last_rpm[motor] = rpm;
     
     return rpm;
 }
-
-
