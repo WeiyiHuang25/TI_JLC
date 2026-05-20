@@ -34,7 +34,10 @@
 #include "bsp_UART.h"
 #include "bsp_CAN.h"
 #include "bsp_PWM.h"
+#include "bsp_oled.h"
 
+
+volatile uint32_t start_time;
 
 // test
 
@@ -59,6 +62,7 @@ volatile uint8_t  g_flag_100hz = 0;
 int main(void)
 {
     SYSCFG_DL_init();
+    OLED_Init();
     NVIC_EnableIRQ(CANFD0_INT_IRQn);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     uart_receive_start();
@@ -66,15 +70,39 @@ int main(void)
 
     DL_GPIO_setPins(LED_PORT, LED_LED_PIN_PIN);
 
+
+    
+    
+
+    uint8_t t=' ';
     while (1)
     {
+        OLED_ShowChinese(0,0,0,16);//中
+        OLED_ShowChinese(18,0,1,16);//景
+        OLED_ShowChinese(36,0,2,16);//园
+        OLED_ShowChinese(54,0,3,16);//电
+        OLED_ShowChinese(72,0,4,16);//子
+        OLED_ShowChinese(90,0,5,16);//科
+        OLED_ShowChinese(108,0,6,16);//技
+        OLED_ShowString(8,2,(uint8_t *)"ZHONGJINGYUAN",16);
+        OLED_ShowString(20,4,(uint8_t *)"2014/05/01",16);
+        OLED_ShowString(0,6,(uint8_t *)"ASCII:",16);  
+        OLED_ShowString(63,6,(uint8_t *)"CODE:",16);
+        OLED_ShowChar(48,6,t,16);
+        t++;
+        if(t>'~')t=' ';
+        OLED_ShowNum(103,6,t,3,16);
+        delay_ms(500);
+        OLED_Clear();
+
         if (g_flag_100hz) {
             g_flag_100hz = 0;
 
-            motor_set(MOTOR_FR, false, 2500);
-            motor_set(MOTOR_FL, false, 2500);
-            motor_set(MOTOR_RR, false, 2500);
-            motor_set(MOTOR_RL, false, 2500);
+            // motor_set(MOTOR_FR, false, 2500);
+            // motor_set(MOTOR_FL, false, 2500);
+            // motor_set(MOTOR_RR, false, 2500);
+            // motor_set(MOTOR_RL, false, 2500);
+            // CAN_send_std_frame(0X123, uart_send_buff, sizeof(uart_send_buff));
             
         }
     }
@@ -92,3 +120,18 @@ void SysTick_Handler(void)
     speed_rr = motor_get_speed(MOTOR_RR);
     speed_rl = motor_get_speed(MOTOR_RL);
 }
+
+int mspm0_delay_ms(unsigned long num_ms)
+{
+    delay_cycles(80000* num_ms);
+}
+
+
+int mspm0_get_clock_ms(unsigned long *count)
+{
+    if (!count)
+        return 1;
+    count[0] = g_tick;
+    return 0;
+}
+

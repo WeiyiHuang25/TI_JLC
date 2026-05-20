@@ -4,6 +4,7 @@
 "./User/bsp/Src/bsp_CAN.o"
 "./User/bsp/Src/bsp_PWM.o"
 "./User/bsp/Src/bsp_UART.o"
+"./User/bsp/Src/bsp_oled.o"
 -l"./device_linker.cmd"
 -ldevice.cmd.genlibs
 -llibc.a

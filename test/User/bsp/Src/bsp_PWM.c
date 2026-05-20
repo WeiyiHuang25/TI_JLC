@@ -83,7 +83,7 @@ void motor_set(motor_id_t motor, bool forward, uint16_t duty)
     if (duty > PWM_PERIOD) duty = PWM_PERIOD;
 
     uint16_t cc = PWM_PERIOD - duty;   /* CC ∈ [0, period] */
-    uint16_t lo = PWM_PERIOD;          /* LOW  = CC=period */
+    uint16_t lo = PWM_PERIOD;          /* CC=period → always LOW (0V) */
 
     switch (motor) {
     case MOTOR_FL:
