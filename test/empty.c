@@ -59,7 +59,7 @@ float speed_rl = 0.0f;
 float speed_rr = 0.0f;
 volatile uint32_t g_tick = 0;
 volatile uint8_t  g_flag_100hz = 0;
-
+uint16_t test_count;
 
 // test end
 
@@ -75,10 +75,11 @@ int main(void)
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     uart_receive_start();
     User_Init();
-    // chasis_move(100, 0, 0, 0.5);
-
+    // chasis_set_velocity(0, 0, 3.14/10);
+    // chasis_set_velocity(-0.5, 0, 0);
+    test_count = g_tick;
     DL_GPIO_setPins(LED_PORT, LED_LED_PIN_PIN);
-    motor_test_direction_start();
+    // motor_test_direction_start();
 
     
     
@@ -123,6 +124,11 @@ void SysTick_Handler(void)
     }
     if (g_tick == INIT_TIME)
         init_ok = true;
+    if ((g_tick%1000) == 0U)
+    {
+        DL_GPIO_togglePins(LED_PORT, LED_LED_PIN_PIN);
+    }
+
 
     // speed_fr = motor_get_speed(MOTOR_FR);
     // speed_fl = motor_get_speed(MOTOR_FL);

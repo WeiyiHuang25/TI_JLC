@@ -116,17 +116,17 @@ uint16_t motor_get_duty(motor_id_t motor);
  */
 void motor_all_coast(void);
 
-/**
- * @brief 获取电机转速 (RPM, 每次调用时根据编码器实时计算)
- * @param motor 电机编号
- * @return 转速 (转/分钟, RPM, 浮点), 正=正转, 负=反转, 0=停转
- *
- * 调用方式: 在 100Hz PID 循环中每周期调用一次。
- * 不调用时不计算, 无后台中断开销。
- *
- * 原理: 读定时器当前计数值 counter 与 A/B 相捕获值,
- *       τ = counter − capture = 距上一次边沿的时间 (ticks),
- *       RPM = timer_hz × 60 / (τ × ENC_EDGES_PER_REV)
- */
-float motor_get_speed(motor_id_t motor);
+// /**
+//  * @brief 获取电机转速 (RPM, 每次调用时根据编码器实时计算)
+//  * @param motor 电机编号
+//  * @return 转速 (转/分钟, RPM, 浮点), 正=正转, 负=反转, 0=停转
+//  *
+//  * 调用方式: 在 100Hz PID 循环中每周期调用一次。
+//  * 不调用时不计算, 无后台中断开销。
+//  *
+//  * 原理: 读定时器当前计数值 counter 与 A/B 相捕获值,
+//  *       τ = counter − capture = 距上一次边沿的时间 (ticks),
+//  *       RPM = timer_hz × 60 / (τ × ENC_EDGES_PER_REV)
+//  */
+// float motor_get_speed(motor_id_t motor);
 

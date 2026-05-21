@@ -53,19 +53,8 @@ void chasis_update(void);
 void chasis_cal(void);
 void chasis_set_velocity(float vx, float vy, float wz);
 void chasis_stop(void);
-void chasis_move(float dx, float dy, float dtheta, float speed);
-bool chasis_move_is_done(void);
-void chasis_move_abort(void);
-
-float chasis_get_odom_x(void);
-float chasis_get_odom_y(void);
-float chasis_get_odom_theta(void);
-void  chasis_reset_odom(void);
+void chasis_brake(void);
 
 
-/* ── 电机方向测试与配置 ── */
-void motor_set_invert(motor_id_t motor, bool invert);
-bool motor_get_invert(motor_id_t motor);
-void motor_test_direction_start(void);
-void motor_test_direction_stop(void);
-void motor_test_tick(void);
+
+

@@ -156,104 +156,104 @@ void motor_all_coast(void)
     }
 }
 
-/* =========================================================================
- * 编码器速度读取
- *
- * ── 方向判定 (两级) ──
- *   ① 优先: GPIO 电平正交状态机 — 捕获到 AB 电平跳变时精准判向
- *   ② 兜底: 捕获时间戳比较   — 电平未变时, 靠 A/B 捕获值先后判断
- *      (你提出的"上升沿下降沿时间差值法")
- *
- *   ┌────────────┬──────────────────────────────┐
- *   │ GPIO 状态   │  B_cap > A_cap (B更新)       │
- *   │ (A<<1)|B   │  A_cap > B_cap (A更新)       │
- *   ├────────────┼──────────────┬───────────────┤
- *   │  0 (L,L)   │  B更新→正转  │  A更新→反转   │
- *   │  1 (L,H)   │  B更新→反转  │  A更新→正转   │
- *   │  2 (H,L)   │  B更新→反转  │  A更新→正转   │
- *   │  3 (H,H)   │  B更新→正转  │  A更新→反转   │
- *   └────────────┴──────────────┴───────────────┘
- *
- * ── 速度量级 ──
- *   delta_a + delta_b = 两次调用间捕获寄存器总变化量 (timer ticks)
- *   TIMG12 (10MHz) 除以 10 归一化到与其他 3 路 1MHz 一致。
- *   边沿多→delta大→速度快, 与真实速度成正比, 适合 PID 反馈。
- * ========================================================================= */
+// /* =========================================================================
+//  * 编码器速度读取
+//  *
+//  * ── 方向判定 (两级) ──
+//  *   ① 优先: GPIO 电平正交状态机 — 捕获到 AB 电平跳变时精准判向
+//  *   ② 兜底: 捕获时间戳比较   — 电平未变时, 靠 A/B 捕获值先后判断
+//  *      (你提出的"上升沿下降沿时间差值法")
+//  *
+//  *   ┌────────────┬──────────────────────────────┐
+//  *   │ GPIO 状态   │  B_cap > A_cap (B更新)       │
+//  *   │ (A<<1)|B   │  A_cap > B_cap (A更新)       │
+//  *   ├────────────┼──────────────┬───────────────┤
+//  *   │  0 (L,L)   │  B更新→正转  │  A更新→反转   │
+//  *   │  1 (L,H)   │  B更新→反转  │  A更新→正转   │
+//  *   │  2 (H,L)   │  B更新→反转  │  A更新→正转   │
+//  *   │  3 (H,H)   │  B更新→正转  │  A更新→反转   │
+//  *   └────────────┴──────────────┴───────────────┘
+//  *
+//  * ── 速度量级 ──
+//  *   delta_a + delta_b = 两次调用间捕获寄存器总变化量 (timer ticks)
+//  *   TIMG12 (10MHz) 除以 10 归一化到与其他 3 路 1MHz 一致。
+//  *   边沿多→delta大→速度快, 与真实速度成正比, 适合 PID 反馈。
+//  * ========================================================================= */
 
-float motor_get_speed(motor_id_t motor)
-{
-    if (motor >= MOTOR_NUM) return 0.0f;
+// float motor_get_speed(motor_id_t motor)
+// {
+//     if (motor >= MOTOR_NUM) return 0.0f;
 
-    static uint32_t last_count[MOTOR_NUM] = {0};
-    static float last_rpm[MOTOR_NUM] = {0};
-    static float last_period[MOTOR_NUM] = {0};
+//     static uint32_t last_count[MOTOR_NUM] = {0};
+//     static float last_rpm[MOTOR_NUM] = {0};
+//     static float last_period[MOTOR_NUM] = {0};
 
-    uint32_t current_count = 0;
-    uint32_t now_ticks = 0;
+//     uint32_t current_count = 0;
+//     uint32_t now_ticks = 0;
 
-    switch (motor) {
-    case MOTOR_FL: 
-        current_count = READ_CAP_FFRONT_L(); 
-        now_ticks = READ_CNT_FFRONT();
-        break;
-    case MOTOR_FR: 
-        current_count = READ_CAP_FFRONT_R(); 
-        now_ticks = READ_CNT_FFRONT();
-        break;
-    case MOTOR_RL: 
-        current_count = READ_CAP_REAR_L(); 
-        now_ticks = READ_CNT_REAR();
-        break;
-    case MOTOR_RR: 
-        current_count = READ_CAP_REAR_R(); 
-        now_ticks = READ_CNT_REAR();
-        break;
-    default: return 0.0f;
-    }
+//     switch (motor) {
+//     case MOTOR_FL: 
+//         current_count = READ_CAP_FFRONT_L(); 
+//         now_ticks = READ_CNT_FFRONT();
+//         break;
+//     case MOTOR_FR: 
+//         current_count = READ_CAP_FFRONT_R(); 
+//         now_ticks = READ_CNT_FFRONT();
+//         break;
+//     case MOTOR_RL: 
+//         current_count = READ_CAP_REAR_L(); 
+//         now_ticks = READ_CNT_REAR();
+//         break;
+//     case MOTOR_RR: 
+//         current_count = READ_CAP_REAR_R(); 
+//         now_ticks = READ_CNT_REAR();
+//         break;
+//     default: return 0.0f;
+//     }
 
-    /* 与上次边沿时间的差值 */
-    uint32_t diff = (current_count - last_count[motor]) & 0xFFFFU;
+//     /* 与上次边沿时间的差值 */
+//     uint32_t diff = (current_count - last_count[motor]) & 0xFFFFU;
     
-    /* 距离最后一个边沿到现在过去的时间量 */
-    uint32_t time_since_last = (now_ticks - current_count) & 0xFFFFU;
+//     /* 距离最后一个边沿到现在过去的时间量 */
+//     uint32_t time_since_last = (now_ticks - current_count) & 0xFFFFU;
 
-    /* 超时停转检测：距最后一次脉冲超过 50ms (50000us)，视为停转 */
-    if (time_since_last > 50000) {
-        last_rpm[motor] = 0.0f;
-        last_period[motor] = 0.0f;
-        return 0.0f;
-    }
+//     /* 超时停转检测：距最后一次脉冲超过 50ms (50000us)，视为停转 */
+//     if (time_since_last > 50000) {
+//         last_rpm[motor] = 0.0f;
+//         last_period[motor] = 0.0f;
+//         return 0.0f;
+//     }
 
-    /* 本次 1ms 内没有抓到新脉冲：保持平滑输出 */
-    if (diff == 0) {
-        return last_rpm[motor];
-    }
+//     /* 本次 1ms 内没有抓到新脉冲：保持平滑输出 */
+//     if (diff == 0) {
+//         return last_rpm[motor];
+//     }
 
-    last_count[motor] = current_count;
+//     last_count[motor] = current_count;
 
-    float dir_f = g_motor[motor].direction ? 1.0f : -1.0f;
+//     float dir_f = g_motor[motor].direction ? 1.0f : -1.0f;
 
-    /* 
-     * 核心修复：多边沿时间解算过滤
-     * 由于轮询频率低于边沿发生频率，diff 中可能包含了 2个甚至3个 周期的总时间。
-     * 估算包含的周期数 N，将其除回去得到真实的【单边沿间隔时间】
-     */
-    float period = (float)diff;
-    if (last_period[motor] > 0.0f) {
-        int N = (int)(period / last_period[motor] + 0.5f);
-        if (N < 1) N = 1;
-        period = period / (float)N; 
-    }
+//     /* 
+//      * 核心修复：多边沿时间解算过滤
+//      * 由于轮询频率低于边沿发生频率，diff 中可能包含了 2个甚至3个 周期的总时间。
+//      * 估算包含的周期数 N，将其除回去得到真实的【单边沿间隔时间】
+//      */
+//     float period = (float)diff;
+//     if (last_period[motor] > 0.0f) {
+//         int N = (int)(period / last_period[motor] + 0.5f);
+//         if (N < 1) N = 1;
+//         period = period / (float)N; 
+//     }
     
-    // 如果干扰导致值太小则予以忽略
-    if (period < 1.0f) period = 1.0f;
-    last_period[motor] = period;
+//     // 如果干扰导致值太小则予以忽略
+//     if (period < 1.0f) period = 1.0f;
+//     last_period[motor] = period;
 
-    /*
-     * 假设你已在 SysConfig 中将捕获模式改为“单边沿（上升沿）”，
-     * 这里的推算直接使用 1 个脉冲 = 1 个外圈波形 的标准公式：
-     */
-    float rpm = dir_f * (1000000.0f / period) * 60.0f / (11.0f * 21.3f);
-    last_rpm[motor] = rpm;
-    return rpm;
-}
+//     /*
+//      * 假设你已在 SysConfig 中将捕获模式改为“单边沿（上升沿）”，
+//      * 这里的推算直接使用 1 个脉冲 = 1 个外圈波形 的标准公式：
+//      */
+//     float rpm = dir_f * (1000000.0f / period) * 60.0f / (11.0f * 21.3f);
+//     last_rpm[motor] = rpm;
+//     return rpm;
+// }
