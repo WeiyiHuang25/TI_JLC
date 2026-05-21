@@ -158,23 +158,23 @@ void CAN_Rx_FIFO0_New_Message_Callback(DL_MCAN_RxBufElement rxMsg)
     }
     if (buffer[0] == 0x0U)
     {
-        motor_set(MOTOR_FR, true, 2500);
+        motor_set(MOTOR_FL, true, 2500);
     }
         if (buffer[0] == 0x1U)
     {
-        motor_set(MOTOR_FR, true, 4999);
+        motor_set(MOTOR_FL, true, 4999);
     }
     if (buffer[0] == 0x2U)
     {
-        motor_brake(MOTOR_FR);
+        motor_brake(MOTOR_FL);
     }
     if (buffer[0] == 0x3U)
     {
-        motor_set(MOTOR_FR, false, 2500);
+        motor_set(MOTOR_FL, false, 2500);
     }
     if (buffer[0] == 0x4U)
     {
-        motor_set(MOTOR_FR, false, 4999);
+        motor_set(MOTOR_FL, false, 4999);
     }
 }
 
