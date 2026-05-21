@@ -1,4 +1,5 @@
 ﻿#include "bsp_PWM.h"
+#include "stdlib.h"
 
 /* =========================================================================
  * 4 电机通道映射 (direction/duty 仅用于查询, 不含硬件操作)
@@ -91,12 +92,12 @@ void motor_set(motor_id_t motor, bool forward, uint16_t duty)
         else         { SET_CC_FL_IN1(lo); SET_CC_FL_IN2(cc); }
         break;
     case MOTOR_FR:
-        if (forward) { SET_CC_FR_IN1(cc); SET_CC_FR_IN2(lo); }
-        else         { SET_CC_FR_IN1(lo); SET_CC_FR_IN2(cc); }
+        if (forward) { SET_CC_FR_IN1(lo); SET_CC_FR_IN2(cc); }
+        else         { SET_CC_FR_IN1(cc); SET_CC_FR_IN2(lo); } // FR电机安装方向相反
         break;
     case MOTOR_RL:
-        if (forward) { SET_CC_RL_IN1(cc); SET_CC_RL_IN2(lo); }
-        else         { SET_CC_RL_IN1(lo); SET_CC_RL_IN2(cc); }
+        if (forward) { SET_CC_RL_IN1(lo); SET_CC_RL_IN2(cc); }
+        else         { SET_CC_RL_IN1(cc); SET_CC_RL_IN2(lo); } // RL电机安装方向相反
         break;
     case MOTOR_RR:
         if (forward) { SET_CC_RR_IN1(cc); SET_CC_RR_IN2(lo); }
@@ -254,6 +255,5 @@ float motor_get_speed(motor_id_t motor)
      */
     float rpm = dir_f * (1000000.0f / period) * 60.0f / (11.0f * 21.3f);
     last_rpm[motor] = rpm;
-    
     return rpm;
 }

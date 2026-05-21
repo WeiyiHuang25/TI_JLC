@@ -13,10 +13,15 @@ ORDERED_OBJS += \
 "./empty.o" \
 "./ti_msp_dl_config.o" \
 "./startup_mspm0g350x_ticlang.o" \
+"./User/bsp/Src/Task.o" \
+"./User/bsp/Src/ZDT_CAN.o" \
+"./User/bsp/Src/ZDT_Driver.o" \
 "./User/bsp/Src/bsp_CAN.o" \
 "./User/bsp/Src/bsp_PWM.o" \
 "./User/bsp/Src/bsp_UART.o" \
 "./User/bsp/Src/bsp_oled.o" \
+"./User/bsp/Src/chasis.o" \
+"./User/bsp/Src/pid.o" \
 $(GEN_CMDS__FLAG) \
 -Wl,-ldevice.cmd.genlibs \
 -Wl,-llibc.a \
@@ -142,8 +147,8 @@ test.out: $(OBJS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "empty.o" "ti_msp_dl_config.o" "startup_mspm0g350x_ticlang.o" "User\bsp\Src\bsp_CAN.o" "User\bsp\Src\bsp_PWM.o" "User\bsp\Src\bsp_UART.o" "User\bsp\Src\bsp_oled.o" 
-	-$(RM) "empty.d" "ti_msp_dl_config.d" "startup_mspm0g350x_ticlang.d" "User\bsp\Src\bsp_CAN.d" "User\bsp\Src\bsp_PWM.d" "User\bsp\Src\bsp_UART.d" "User\bsp\Src\bsp_oled.d" 
+	-$(RM) "empty.o" "ti_msp_dl_config.o" "startup_mspm0g350x_ticlang.o" "User\bsp\Src\Task.o" "User\bsp\Src\ZDT_CAN.o" "User\bsp\Src\ZDT_Driver.o" "User\bsp\Src\bsp_CAN.o" "User\bsp\Src\bsp_PWM.o" "User\bsp\Src\bsp_UART.o" "User\bsp\Src\bsp_oled.o" "User\bsp\Src\chasis.o" "User\bsp\Src\pid.o" 
+	-$(RM) "empty.d" "ti_msp_dl_config.d" "startup_mspm0g350x_ticlang.d" "User\bsp\Src\Task.d" "User\bsp\Src\ZDT_CAN.d" "User\bsp\Src\ZDT_Driver.d" "User\bsp\Src\bsp_CAN.d" "User\bsp\Src\bsp_PWM.d" "User\bsp\Src\bsp_UART.d" "User\bsp\Src\bsp_oled.d" "User\bsp\Src\chasis.d" "User\bsp\Src\pid.d" 
 	-@echo ' '
 
 .PHONY: all clean dependents

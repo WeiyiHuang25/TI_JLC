@@ -1,6 +1,10 @@
 # FIXED
 
-empty.o: ../empty.c ti_msp_dl_config.h \
+User/bsp/Src/chasis.o: ../User/bsp/Src/chasis.c \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/chasis.h \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_Driver.h \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_CAN.h \
+ ti_msp_dl_config.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/msp/msp.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/DeviceFamily.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/msp/m0p/mspm0g350x.h \
@@ -83,16 +87,14 @@ empty.o: ../empty.c ti_msp_dl_config.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_wwdt.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_interrupt.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_systick.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_UART.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_CAN.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_PWM.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_oled.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/Task.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_Driver.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_CAN.h \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_PWM.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/pid.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/chasis.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/EzTuner.h
+D:/rmLearning/TI/test/test/User/bsp/Inc/chasis.h:
+D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_Driver.h:
+D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_CAN.h:
 ti_msp_dl_config.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/msp/msp.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/DeviceFamily.h:
@@ -176,13 +178,8 @@ E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_vref.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_wwdt.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_interrupt.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_systick.h:
-D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_UART.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_CAN.h:
-D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_PWM.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_oled.h:
-D:/rmLearning/TI/test/test/User/bsp/Inc/Task.h:
-D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_Driver.h:
-D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_CAN.h:
+D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_PWM.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/pid.h:
-D:/rmLearning/TI/test/test/User/bsp/Inc/chasis.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/EzTuner.h:

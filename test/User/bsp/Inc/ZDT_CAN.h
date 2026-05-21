@@ -13,6 +13,6 @@
 	* @param   无
 	* @retval  无
 	*/
-void can_SendCmd(__IO uint8_t *cmd, uint8_t len);
+void can_SendCmd(uint8_t *cmd, uint8_t len);
 
 #endif

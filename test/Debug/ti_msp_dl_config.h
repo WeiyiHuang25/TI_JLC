@@ -163,20 +163,20 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 
 
 /* Defines for FFRONT_IN */
-#define FFRONT_IN_INST                                                   (TIMG0)
-#define FFRONT_IN_INST_IRQHandler                               TIMG0_IRQHandler
-#define FFRONT_IN_INST_INT_IRQN                                 (TIMG0_INT_IRQn)
+#define FFRONT_IN_INST                                                   (TIMG8)
+#define FFRONT_IN_INST_IRQHandler                               TIMG8_IRQHandler
+#define FFRONT_IN_INST_INT_IRQN                                 (TIMG8_INT_IRQn)
 #define FFRONT_IN_INST_LOAD_VALUE                                           (0U)
 /* GPIO defines for channel 0 */
-#define GPIO_FFRONT_IN_C0_PORT                                             GPIOA
-#define GPIO_FFRONT_IN_C0_PIN                                     DL_GPIO_PIN_23
-#define GPIO_FFRONT_IN_C0_IOMUX                                  (IOMUX_PINCM53)
-#define GPIO_FFRONT_IN_C0_IOMUX_FUNC                 IOMUX_PINCM53_PF_TIMG0_CCP0
+#define GPIO_FFRONT_IN_C0_PORT                                             GPIOB
+#define GPIO_FFRONT_IN_C0_PIN                                      DL_GPIO_PIN_6
+#define GPIO_FFRONT_IN_C0_IOMUX                                  (IOMUX_PINCM23)
+#define GPIO_FFRONT_IN_C0_IOMUX_FUNC                 IOMUX_PINCM23_PF_TIMG8_CCP0
 /* GPIO defines for channel 1 */
-#define GPIO_FFRONT_IN_C1_PORT                                             GPIOA
-#define GPIO_FFRONT_IN_C1_PIN                                     DL_GPIO_PIN_24
-#define GPIO_FFRONT_IN_C1_IOMUX                                  (IOMUX_PINCM54)
-#define GPIO_FFRONT_IN_C1_IOMUX_FUNC                 IOMUX_PINCM54_PF_TIMG0_CCP1
+#define GPIO_FFRONT_IN_C1_PORT                                             GPIOB
+#define GPIO_FFRONT_IN_C1_PIN                                      DL_GPIO_PIN_7
+#define GPIO_FFRONT_IN_C1_IOMUX                                  (IOMUX_PINCM24)
+#define GPIO_FFRONT_IN_C1_IOMUX_FUNC                 IOMUX_PINCM24_PF_TIMG8_CCP1
 
 /* Defines for REAR_IN */
 #define REAR_IN_INST                                                     (TIMG7)

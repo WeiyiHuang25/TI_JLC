@@ -35,9 +35,13 @@
 #include "bsp_CAN.h"
 #include "bsp_PWM.h"
 #include "bsp_oled.h"
+#include "Task.h"
+#include "EzTuner.h"
 
 
 volatile uint32_t start_time;
+
+int mspm0_delay_ms(unsigned long num_ms);
 
 // test
 
@@ -59,7 +63,7 @@ volatile uint8_t  g_flag_100hz = 0;
 
 // test end
 
-
+bool init_ok = false;
 void one_hundured_ms_callback();
 void ms_callback();
 
@@ -70,15 +74,16 @@ int main(void)
     NVIC_EnableIRQ(CANFD0_INT_IRQn);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     uart_receive_start();
-    
+    User_Init();
+    // chasis_move(100, 0, 0, 0.5);
 
     DL_GPIO_setPins(LED_PORT, LED_LED_PIN_PIN);
-
+    motor_test_direction_start();
 
     
     
 
-    uint8_t t=' ';
+    // uint8_t t=' ';
     while (1)
     {
         // OLED_ShowChinese(0,0,0,16);//中
@@ -110,11 +115,14 @@ int main(void)
 
 void SysTick_Handler(void)
 {
+
     uart_isIDLE();
     g_tick++;
     if ((g_tick % 10U) == 0U) {
         g_flag_100hz = 1;
     }
+    if (g_tick == INIT_TIME)
+        init_ok = true;
 
     // speed_fr = motor_get_speed(MOTOR_FR);
     // speed_fl = motor_get_speed(MOTOR_FL);
@@ -126,6 +134,7 @@ void SysTick_Handler(void)
 int mspm0_delay_ms(unsigned long num_ms)
 {
     delay_cycles(80000* num_ms);
+    return 0;
 }
 
 
