@@ -19,4 +19,4 @@ void uart_isIDLE();
 
 void UART_Rx_DMA_ToIdle_Callback(uint16_t size); // 可用户自定义回调函数
 
-
+extern uint8_t uart_rx_buff[UART_RX_BUFF_SIZE];

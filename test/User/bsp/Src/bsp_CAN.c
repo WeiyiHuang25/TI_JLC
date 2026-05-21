@@ -2,7 +2,7 @@
 #include <string.h>
 #include "bsp_PWM.h"
 void handleCanRxMessage(void);
-
+void CAN_Rx_FIFO0_New_Message_Callback(DL_MCAN_RxBufElement rxMsg);
 
 bool CAN_send_std_frame(uint32_t id, uint8_t* data, uint16_t len)
 {
@@ -139,44 +139,44 @@ void MCAN0_INST_IRQHandler(void)
 }
 
 
-void CAN_Rx_FIFO0_New_Message_Callback(DL_MCAN_RxBufElement rxMsg)
-{
-    uint8_t buffer[100];
-    size_t size = rxMsg.dlc;
-    uint32_t id;
-    memcpy(buffer, rxMsg.data, size);
-    if (rxMsg.xtd == 0)
-    {
-        id = ((uint32_t)rxMsg.id) >> 18U;
-        CAN_send_std_frame(id, buffer, size);
+// void CAN_Rx_FIFO0_New_Message_Callback(DL_MCAN_RxBufElement rxMsg)
+// {
+//     uint8_t buffer[100];
+//     size_t size = rxMsg.dlc;
+//     uint32_t id;
+//     memcpy(buffer, rxMsg.data, size);
+//     if (rxMsg.xtd == 0)
+//     {
+//         id = ((uint32_t)rxMsg.id) >> 18U;
+//         CAN_send_std_frame(id, buffer, size);
 
-    }
-    else
-    {
-        id = rxMsg.id;
-        CAN_send_ext_frame(id, buffer, size);
-    }
-    if (buffer[0] == 0x0U)
-    {
-        motor_set(MOTOR_FL, true, 2500);
-    }
-        if (buffer[0] == 0x1U)
-    {
-        motor_set(MOTOR_FL, true, 4999);
-    }
-    if (buffer[0] == 0x2U)
-    {
-        motor_brake(MOTOR_FL);
-    }
-    if (buffer[0] == 0x3U)
-    {
-        motor_set(MOTOR_FL, false, 2500);
-    }
-    if (buffer[0] == 0x4U)
-    {
-        motor_set(MOTOR_FL, false, 4999);
-    }
-}
+//     }
+//     else
+//     {
+//         id = rxMsg.id;
+//         CAN_send_ext_frame(id, buffer, size);
+//     }
+//     if (buffer[0] == 0x0U)
+//     {
+//         motor_set(MOTOR_FL, true, 2500);
+//     }
+//         if (buffer[0] == 0x1U)
+//     {
+//         motor_set(MOTOR_FL, true, 4999);
+//     }
+//     if (buffer[0] == 0x2U)
+//     {
+//         motor_brake(MOTOR_FL);
+//     }
+//     if (buffer[0] == 0x3U)
+//     {
+//         motor_set(MOTOR_FL, false, 2500);
+//     }
+//     if (buffer[0] == 0x4U)
+//     {
+//         motor_set(MOTOR_FL, false, 4999);
+//     }
+// }
 
 
 

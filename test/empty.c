@@ -59,6 +59,10 @@ volatile uint8_t  g_flag_100hz = 0;
 
 // test end
 
+
+void one_hundured_ms_callback();
+void ms_callback();
+
 int main(void)
 {
     SYSCFG_DL_init();
@@ -97,12 +101,8 @@ int main(void)
 
         if (g_flag_100hz) {
             g_flag_100hz = 0;
+            one_hundured_ms_callback();
 
-            // motor_set(MOTOR_FR, false, 2500);
-            // motor_set(MOTOR_FL, false, 2500);
-            // motor_set(MOTOR_RR, false, 2500);
-            // motor_set(MOTOR_RL, false, 2500);
-            // CAN_send_std_frame(0X123, uart_send_buff, sizeof(uart_send_buff));
             
         }
     }
@@ -115,10 +115,12 @@ void SysTick_Handler(void)
     if ((g_tick % 10U) == 0U) {
         g_flag_100hz = 1;
     }
-    speed_fr = motor_get_speed(MOTOR_FR);
-    speed_fl = motor_get_speed(MOTOR_FL);
-    speed_rr = motor_get_speed(MOTOR_RR);
-    speed_rl = motor_get_speed(MOTOR_RL);
+
+    // speed_fr = motor_get_speed(MOTOR_FR);
+    // speed_fl = motor_get_speed(MOTOR_FL);
+    // speed_rr = motor_get_speed(MOTOR_RR);
+    // speed_rl = motor_get_speed(MOTOR_RL);
+    ms_callback();
 }
 
 int mspm0_delay_ms(unsigned long num_ms)

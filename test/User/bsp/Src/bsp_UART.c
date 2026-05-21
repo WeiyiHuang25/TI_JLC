@@ -13,6 +13,8 @@ __IO uint8_t uart_rx_dma_complete_flag = 1;
 __IO uint8_t uart_rx_length = 0;
 
 
+void UART_Rx_DMA_ToIdle_Callback(uint16_t size);
+
 
 void uart_send(uint8_t *buff, uint16_t size) {
     //当串口发送完毕后，才可再次发送
