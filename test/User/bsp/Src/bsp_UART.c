@@ -104,10 +104,4 @@ void uart_isIDLE(){
     }
 }
 
-void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
-{
-    uint8_t buffer[size];
-    memcpy(buffer, (void *)uart_rx_buff, size);
-    uart_send(buffer, size);
-    uart_receive_start();
-}
+

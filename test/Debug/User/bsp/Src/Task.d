@@ -92,7 +92,8 @@ User/bsp/Src/Task.o: ../User/bsp/Src/Task.c \
  D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_PWM.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/pid.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/chasis.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/EzTuner.h
+ D:/rmLearning/TI/test/test/User/bsp/Inc/EzTuner.h \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_key.h
 D:/rmLearning/TI/test/test/User/bsp/Inc/Task.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_Driver.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_CAN.h:
@@ -185,3 +186,4 @@ D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_PWM.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/pid.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/chasis.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/EzTuner.h:
+D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_key.h:

@@ -9,11 +9,9 @@
 /**
  * Import the modules used in this configuration.
  */
-const CAPTURE       = scripting.addModule("/ti/driverlib/CAPTURE", {}, false);
-const CAPTURE1      = CAPTURE.addInstance();
-const CAPTURE2      = CAPTURE.addInstance();
 const GPIO          = scripting.addModule("/ti/driverlib/GPIO", {}, false);
 const GPIO1         = GPIO.addInstance();
+const GPIO2         = GPIO.addInstance();
 const I2C           = scripting.addModule("/ti/driverlib/I2C", {}, false);
 const I2C1          = I2C.addInstance();
 const MCAN          = scripting.addModule("/ti/driverlib/MCAN", {}, false);
@@ -67,64 +65,28 @@ const pinFunction6     = system.clockTree["LFXT"];
 pinFunction6.inputFreq = 32.768;
 pinFunction6.enable    = true;
 
-CAPTURE1.timerClkPrescale                   = 40;
-CAPTURE1.timerStartTimer                    = true;
-CAPTURE1.captMode                           = "EDGE_TIME_UP";
-CAPTURE1.captureInputMode                   = "multi";
-CAPTURE1.ccIndexMulti                       = [0,1];
-CAPTURE1.multi_countMode                    = "DL_TIMER_COUNT_MODE_UP";
-CAPTURE1.multi_cvae                         = "DL_TIMER_COUNT_AFTER_EN_ZERO";
-CAPTURE1.multi_ch1_input_filter             = true;
-CAPTURE1.multi_ch1_filteringMode            = "VOTING";
-CAPTURE1.multi_ch0_input_filter             = true;
-CAPTURE1.multi_ch0_filteringMode            = "VOTING";
-CAPTURE1.multi_countRep                     = "DL_TIMER_REPEAT_MODE_ENABLED";
-CAPTURE1.$name                              = "FFRONT_IN";
-CAPTURE1.peripheral.$assign                 = "TIMG8";
-CAPTURE1.peripheral.ccp0Pin.$assign         = "PB6";
-CAPTURE1.peripheral.ccp1Pin.$assign         = "PB7";
-CAPTURE1.ccp0PinConfig.hideOutputInversion  = scripting.forceWrite(false);
-CAPTURE1.ccp0PinConfig.onlyInternalResistor = scripting.forceWrite(false);
-CAPTURE1.ccp0PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
-CAPTURE1.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric12";
-CAPTURE1.ccp1PinConfig.hideOutputInversion  = scripting.forceWrite(false);
-CAPTURE1.ccp1PinConfig.onlyInternalResistor = scripting.forceWrite(false);
-CAPTURE1.ccp1PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
-CAPTURE1.ccp1PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric13";
-
-const Board = scripting.addModule("/ti/driverlib/Board", {}, false);
-
-CAPTURE2.timerStartTimer                    = true;
-CAPTURE2.captMode                           = "EDGE_TIME_UP";
-CAPTURE2.captureInputMode                   = "multi";
-CAPTURE2.ccIndexMulti                       = [0,1];
-CAPTURE2.multi_countMode                    = "DL_TIMER_COUNT_MODE_UP";
-CAPTURE2.multi_cvae                         = "DL_TIMER_COUNT_AFTER_EN_ZERO";
-CAPTURE2.multi_ch1_input_filter             = true;
-CAPTURE2.multi_ch1_filteringMode            = "VOTING";
-CAPTURE2.multi_ch0_input_filter             = true;
-CAPTURE2.multi_ch0_filteringMode            = "VOTING";
-CAPTURE2.timerClkPrescale                   = 80;
-CAPTURE2.multi_countRep                     = "DL_TIMER_REPEAT_MODE_ENABLED";
-CAPTURE2.$name                              = "REAR_IN";
-CAPTURE2.peripheral.$assign                 = "TIMG7";
-CAPTURE2.peripheral.ccp0Pin.$assign         = "PA28";
-CAPTURE2.peripheral.ccp1Pin.$assign         = "PA18";
-CAPTURE2.ccp0PinConfig.hideOutputInversion  = scripting.forceWrite(false);
-CAPTURE2.ccp0PinConfig.onlyInternalResistor = scripting.forceWrite(false);
-CAPTURE2.ccp0PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
-CAPTURE2.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric14";
-CAPTURE2.ccp1PinConfig.hideOutputInversion  = scripting.forceWrite(false);
-CAPTURE2.ccp1PinConfig.onlyInternalResistor = scripting.forceWrite(false);
-CAPTURE2.ccp1PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
-CAPTURE2.ccp1PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric15";
-
 GPIO1.$name                              = "LED";
 GPIO1.port                               = "PORTB";
 GPIO1.associatedPins[0].$name            = "LED_PIN";
 GPIO1.associatedPins[0].assignedPin      = "22";
 GPIO1.associatedPins[0].internalResistor = "PULL_UP";
 GPIO1.associatedPins[0].pin.$assign      = "PB22";
+
+const Board = scripting.addModule("/ti/driverlib/Board", {}, false);
+
+GPIO2.$name                              = "KEY";
+GPIO2.associatedPins.create(2);
+GPIO2.associatedPins[0].$name            = "A18";
+GPIO2.associatedPins[0].direction        = "INPUT";
+GPIO2.associatedPins[0].interruptEn      = true;
+GPIO2.associatedPins[0].polarity         = "RISE";
+GPIO2.associatedPins[0].pin.$assign      = "PA18";
+GPIO2.associatedPins[1].$name            = "B21";
+GPIO2.associatedPins[1].direction        = "INPUT";
+GPIO2.associatedPins[1].internalResistor = "PULL_UP";
+GPIO2.associatedPins[1].polarity         = "FALL";
+GPIO2.associatedPins[1].interruptEn      = true;
+GPIO2.associatedPins[1].pin.$assign      = "PB21";
 
 I2C1.basicEnableController             = true;
 I2C1.basicControllerStandardBusSpeed   = "Fast";

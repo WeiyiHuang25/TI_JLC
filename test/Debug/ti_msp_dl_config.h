@@ -162,42 +162,6 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 
 
 
-/* Defines for FFRONT_IN */
-#define FFRONT_IN_INST                                                   (TIMG8)
-#define FFRONT_IN_INST_IRQHandler                               TIMG8_IRQHandler
-#define FFRONT_IN_INST_INT_IRQN                                 (TIMG8_INT_IRQn)
-#define FFRONT_IN_INST_LOAD_VALUE                                           (0U)
-/* GPIO defines for channel 0 */
-#define GPIO_FFRONT_IN_C0_PORT                                             GPIOB
-#define GPIO_FFRONT_IN_C0_PIN                                      DL_GPIO_PIN_6
-#define GPIO_FFRONT_IN_C0_IOMUX                                  (IOMUX_PINCM23)
-#define GPIO_FFRONT_IN_C0_IOMUX_FUNC                 IOMUX_PINCM23_PF_TIMG8_CCP0
-/* GPIO defines for channel 1 */
-#define GPIO_FFRONT_IN_C1_PORT                                             GPIOB
-#define GPIO_FFRONT_IN_C1_PIN                                      DL_GPIO_PIN_7
-#define GPIO_FFRONT_IN_C1_IOMUX                                  (IOMUX_PINCM24)
-#define GPIO_FFRONT_IN_C1_IOMUX_FUNC                 IOMUX_PINCM24_PF_TIMG8_CCP1
-
-/* Defines for REAR_IN */
-#define REAR_IN_INST                                                     (TIMG7)
-#define REAR_IN_INST_IRQHandler                                 TIMG7_IRQHandler
-#define REAR_IN_INST_INT_IRQN                                   (TIMG7_INT_IRQn)
-#define REAR_IN_INST_LOAD_VALUE                                             (0U)
-/* GPIO defines for channel 0 */
-#define GPIO_REAR_IN_C0_PORT                                               GPIOA
-#define GPIO_REAR_IN_C0_PIN                                       DL_GPIO_PIN_28
-#define GPIO_REAR_IN_C0_IOMUX                                     (IOMUX_PINCM3)
-#define GPIO_REAR_IN_C0_IOMUX_FUNC                    IOMUX_PINCM3_PF_TIMG7_CCP0
-/* GPIO defines for channel 1 */
-#define GPIO_REAR_IN_C1_PORT                                               GPIOA
-#define GPIO_REAR_IN_C1_PIN                                       DL_GPIO_PIN_18
-#define GPIO_REAR_IN_C1_IOMUX                                    (IOMUX_PINCM40)
-#define GPIO_REAR_IN_C1_IOMUX_FUNC                   IOMUX_PINCM40_PF_TIMG7_CCP1
-
-
-
-
-
 
 /* Defines for I2C_OLED */
 #define I2C_OLED_INST                                                       I2C1
@@ -249,6 +213,22 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 /* Defines for LED_PIN: GPIOB.22 with pinCMx 50 on package pin 21 */
 #define LED_LED_PIN_PIN                                         (DL_GPIO_PIN_22)
 #define LED_LED_PIN_IOMUX                                        (IOMUX_PINCM50)
+/* Defines for A18: GPIOA.18 with pinCMx 40 on package pin 11 */
+#define KEY_A18_PORT                                                     (GPIOA)
+// pins affected by this interrupt request:["A18"]
+#define KEY_GPIOA_INT_IRQN                                      (GPIOA_INT_IRQn)
+#define KEY_GPIOA_INT_IIDX                      (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
+#define KEY_A18_IIDX                                        (DL_GPIO_IIDX_DIO18)
+#define KEY_A18_PIN                                             (DL_GPIO_PIN_18)
+#define KEY_A18_IOMUX                                            (IOMUX_PINCM40)
+/* Defines for B21: GPIOB.21 with pinCMx 49 on package pin 20 */
+#define KEY_B21_PORT                                                     (GPIOB)
+// pins affected by this interrupt request:["B21"]
+#define KEY_GPIOB_INT_IRQN                                      (GPIOB_INT_IRQn)
+#define KEY_GPIOB_INT_IIDX                      (DL_INTERRUPT_GROUP1_IIDX_GPIOB)
+#define KEY_B21_IIDX                                        (DL_GPIO_IIDX_DIO21)
+#define KEY_B21_PIN                                             (DL_GPIO_PIN_21)
+#define KEY_B21_IOMUX                                            (IOMUX_PINCM49)
 
 
 
@@ -299,8 +279,6 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 void SYSCFG_DL_FRONT_OUT_init(void);
 void SYSCFG_DL_RL_OUT_init(void);
 void SYSCFG_DL_RR_OUT_init(void);
-void SYSCFG_DL_FFRONT_IN_init(void);
-void SYSCFG_DL_REAR_IN_init(void);
 void SYSCFG_DL_I2C_OLED_init(void);
 void SYSCFG_DL_UART_0_init(void);
 void SYSCFG_DL_DMA_init(void);

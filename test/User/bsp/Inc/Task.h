@@ -9,6 +9,7 @@
 #include "bsp_CAN.h"
 #include "pid.h"
 #include "chasis.h"
+#include "bsp_key.h"
 
 #define TASK_INIT   0
 #define TASK1       1
