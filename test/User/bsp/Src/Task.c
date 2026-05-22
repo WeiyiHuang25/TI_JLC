@@ -1,4 +1,5 @@
 #include "Task.h"
+#include "task_scheduler.h"
 #include "EzTuner.h"
 #include <math.h>
 #include <stdlib.h>
@@ -21,11 +22,8 @@ extern bool init_ok;
 void User_Init()
 {
     KEY_Init();
+    Menu_Init();
 }
-
-
-
-
 
 
 
@@ -43,7 +41,7 @@ inline void one_hundured_ms_callback()
     chasis_cal();
     switch (system_mode)
     {
-    case TASK1:
+    case GIMBAL_SET_ZERO:
         {
 
         }break;
@@ -70,6 +68,9 @@ inline void ms_callback()
     if (!init_ok)
         return;
     KEY_Poll();
+    if (system_mode == TASK_INIT) {
+        Menu_Run();
+    }
     switch (system_mode)
     {
     case TASK1:
@@ -150,9 +151,9 @@ void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
 
 void Key_A18_Pressed(void) 
 {
-
+    flag_next = 1;
 }
 void Key_B21_Pressed(void) 
 {
-    
+    flag_enter = 1;
 }

@@ -12,6 +12,7 @@
 "./User/bsp/Src/chasis.o"
 "./User/bsp/Src/gimbal.o"
 "./User/bsp/Src/pid.o"
+"./User/bsp/Src/task_scheduler.o"
 -l"./device_linker.cmd"
 -ldevice.cmd.genlibs
 -llibc.a

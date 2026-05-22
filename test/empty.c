@@ -37,29 +37,31 @@
 #include "bsp_oled.h"
 #include "Task.h"
 #include "EzTuner.h"
-
+#include "gimbal.h"
 
 volatile uint32_t start_time;
+extern uint32_t system_mode;
+
 
 int mspm0_delay_ms(unsigned long num_ms);
 
 // test
 
-uint8_t test_uart_buffer[64];
-size_t len = 0;
+// uint8_t test_uart_buffer[64];
+// size_t len = 0;
 
-char   uart_send_buff[] = "SBTI";
+// char   uart_send_buff[] = "SBTI";
 
-uint32_t id = 0x123;
-uint8_t data[4] = {2, 2, 3, 4};
+// uint32_t id = 0x123;
+// uint8_t data[4] = {2, 2, 3, 4};
 
-float speed_fr = 0.0f;
-float speed_fl = 0.0f;
-float speed_rl = 0.0f;
-float speed_rr = 0.0f;
-volatile uint32_t g_tick = 0;
-volatile uint8_t  g_flag_100hz = 0;
-uint16_t test_count;
+// float speed_fr = 0.0f;
+// float speed_fl = 0.0f;
+// float speed_rl = 0.0f;
+// float speed_rr = 0.0f;
+// volatile uint32_t g_tick = 0;
+// volatile uint8_t  g_flag_100hz = 0;
+// uint16_t test_count;
 
 // test end
 
@@ -70,7 +72,7 @@ void ms_callback();
 int main(void)
 {
     SYSCFG_DL_init();
-    // OLED_Init();
+    OLED_Init();
     NVIC_EnableIRQ(CANFD0_INT_IRQn);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     uart_receive_start();
@@ -80,7 +82,8 @@ int main(void)
     test_count = g_tick;
     DL_GPIO_setPins(LED_PORT, LED_LED_PIN_PIN);
     // motor_test_direction_start();
-
+    gimbal_disable(); // 防止失控，上电停止
+    chasis_brake();
     
     
 
@@ -108,8 +111,27 @@ int main(void)
         if (g_flag_100hz) {
             g_flag_100hz = 0;
             one_hundured_ms_callback();
+        }
+            switch (system_mode)
+        {
+        case GIMBAL_SET_ZERO:
+            {
 
-            
+            }break;
+        case TASK2:
+            {
+
+            }break;
+        case TASK3:
+            {
+
+            }break;
+        case TASK4:
+            {
+
+            }break;
+        default:
+            break;
         }
     }
 }

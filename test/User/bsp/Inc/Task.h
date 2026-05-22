@@ -11,11 +11,12 @@
 #include "chasis.h"
 #include "bsp_key.h"
 
-#define TASK_INIT   0
-#define TASK1       1
-#define TASK2       2
-#define TASK3       3
-#define TASK4       4
+#define TASK_INIT                   0
+#define TASK1                       1
+#define TASK2                       2
+#define TASK3                       3
+#define TASK4                       4
+#define GIMBAL_SET_ZERO             5
 
 
 void User_Init(void);

@@ -16,7 +16,8 @@ C_SRCS += \
 ../User/bsp/Src/bsp_oled.c \
 ../User/bsp/Src/chasis.c \
 ../User/bsp/Src/gimbal.c \
-../User/bsp/Src/pid.c 
+../User/bsp/Src/pid.c \
+../User/bsp/Src/task_scheduler.c 
 
 C_DEPS += \
 ./User/bsp/Src/Task.d \
@@ -29,7 +30,8 @@ C_DEPS += \
 ./User/bsp/Src/bsp_oled.d \
 ./User/bsp/Src/chasis.d \
 ./User/bsp/Src/gimbal.d \
-./User/bsp/Src/pid.d 
+./User/bsp/Src/pid.d \
+./User/bsp/Src/task_scheduler.d 
 
 OBJS += \
 ./User/bsp/Src/Task.o \
@@ -42,7 +44,8 @@ OBJS += \
 ./User/bsp/Src/bsp_oled.o \
 ./User/bsp/Src/chasis.o \
 ./User/bsp/Src/gimbal.o \
-./User/bsp/Src/pid.o 
+./User/bsp/Src/pid.o \
+./User/bsp/Src/task_scheduler.o 
 
 OBJS__QUOTED += \
 "User\bsp\Src\Task.o" \
@@ -55,7 +58,8 @@ OBJS__QUOTED += \
 "User\bsp\Src\bsp_oled.o" \
 "User\bsp\Src\chasis.o" \
 "User\bsp\Src\gimbal.o" \
-"User\bsp\Src\pid.o" 
+"User\bsp\Src\pid.o" \
+"User\bsp\Src\task_scheduler.o" 
 
 C_DEPS__QUOTED += \
 "User\bsp\Src\Task.d" \
@@ -68,7 +72,8 @@ C_DEPS__QUOTED += \
 "User\bsp\Src\bsp_oled.d" \
 "User\bsp\Src\chasis.d" \
 "User\bsp\Src\gimbal.d" \
-"User\bsp\Src\pid.d" 
+"User\bsp\Src\pid.d" \
+"User\bsp\Src\task_scheduler.d" 
 
 C_SRCS__QUOTED += \
 "../User/bsp/Src/Task.c" \
@@ -81,6 +86,7 @@ C_SRCS__QUOTED += \
 "../User/bsp/Src/bsp_oled.c" \
 "../User/bsp/Src/chasis.c" \
 "../User/bsp/Src/gimbal.c" \
-"../User/bsp/Src/pid.c" 
+"../User/bsp/Src/pid.c" \
+"../User/bsp/Src/task_scheduler.c" 
 
 
