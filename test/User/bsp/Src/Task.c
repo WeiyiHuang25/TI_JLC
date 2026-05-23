@@ -371,7 +371,7 @@ void while_task(void)
                 step = 6;
                 break;
             case 6: /* +Wz */
-                RUN_ONCE(once_flag[2], chasis_set_velocity(0, 0, Q1_VWZ));
+                RUN_ONCE(once_flag[2], chasis_set_velocity(0, 0, -Q1_VWZ));
                 RUN_AFTER(once_flag[2], Q1_TASK3_TIME_WZ, chasis_brake());
                 if (RUN_ONCE_DONE(once_flag[2])) step = 7;
                 break;

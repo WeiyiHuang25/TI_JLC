@@ -54,15 +54,15 @@
 /* Q1: X→Y→Wz 三步任务，每步时间独立可调 */
 #define Q1_TASK1_TIME_X           2700U
 #define Q1_TASK1_TIME_Y           3700U
-#define Q1_TASK1_TIME_WZ          500U
+#define Q1_TASK1_TIME_WZ          380U
 
 #define Q1_TASK2_TIME_X           2700U
 #define Q1_TASK2_TIME_Y           2600U
 #define Q1_TASK2_TIME_WZ          720U
 
-#define Q1_TASK3_TIME_X           3000U
-#define Q1_TASK3_TIME_Y           3000U
-#define Q1_TASK3_TIME_WZ          3000U
+#define Q1_TASK3_TIME_X           2800U
+#define Q1_TASK3_TIME_Y           680U
+#define Q1_TASK3_TIME_WZ          550U
 
 /* Q1: 运动段间延时（归零后直接走，X→Y、Y→Wz 间可调） */
 #define Q1_TASK1_PAUSE_1          500U
