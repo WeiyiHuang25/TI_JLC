@@ -54,6 +54,26 @@ void Timestamp_Init(void)
 {
     g_timer_overflow = 0;
 
+    /*
+     * Fix SysConfig bug: US_TIMER_INST_LOAD_VALUE generates (0U)
+     * instead of 0xFFFFFFFF.  Period=0 is invalid for a down-counter
+     * (never crosses 1→0, LOAD never fires, counter stays dead).
+     *
+     * Must stop the timer before reconfiguring — initTimerMode is
+     * ignored when the timer clock is already running.
+     */
+    DL_TimerG_disableClock(US_TIMER_INST);
+
+    DL_TimerG_TimerConfig tmrCfg = {
+        .period     = 0xFFFFFFFFU,
+        .timerMode  = DL_TIMER_TIMER_MODE_PERIODIC,
+        .startTimer = DL_TIMER_START,
+    };
+    DL_TimerG_initTimerMode(US_TIMER_INST, &tmrCfg);
+    DL_TimerG_clearInterruptStatus(US_TIMER_INST, DL_TIMERG_INTERRUPT_LOAD_EVENT);
+    DL_TimerG_enableInterrupt(US_TIMER_INST, DL_TIMERG_INTERRUPT_LOAD_EVENT);
+    DL_TimerG_enableClock(US_TIMER_INST);
+
     /* Enable TIMG12 interrupt in NVIC */
     NVIC_EnableIRQ(US_TIMER_INST_INT_IRQN);
 }

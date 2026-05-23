@@ -45,6 +45,11 @@
 #define MEC_RIGHT_SCALE { 1.0f, 1.0f, 1.0f, 1.0f }   /* 右移 */
 
 
+
+#define Q1_TASK1_VELOCITY       0.5
+#define Q1_TASK1_TIME           
+
+
 // #define FL_PID_KP 1.0f
 // #define FL_PID_KI 0.01f
 // #define FL_PID_KD 0.005f

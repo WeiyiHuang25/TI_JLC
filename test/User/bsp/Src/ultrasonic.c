@@ -69,6 +69,15 @@ typedef struct {
 static us_ch_t g_us[ULTRASONIC_CH_MAX];
 
 /* ========================================================================
+ *  调试计数器
+ * ======================================================================== */
+
+volatile uint32_t g_dbg_trig_cnt  = 0;
+volatile uint32_t g_dbg_isr_cnt   = 0;
+volatile uint32_t g_dbg_last_iidx = 0xFFFFFFFF;
+volatile uint8_t  g_dbg_state[2]  = {0, 0};
+
+/* ========================================================================
  *  初始化
  * ======================================================================== */
 
@@ -97,6 +106,8 @@ void Ultrasonic_Trigger(uint8_t ch)
     g_us[ch].state      = US_STATE_WAIT_RISE;
     g_us[ch].data_ready = false;
 
+    g_dbg_trig_cnt++;
+
     /* 发 TRIG 脉冲期间屏蔽 ECHO 中断以免误触发 */
     DL_GPIO_disableInterrupt(ULTRASONIC_PORT, _echo_pin[ch]);
 
@@ -115,8 +126,13 @@ void Ultrasonic_Trigger(uint8_t ch)
 
 void Ultrasonic_GPIOB_ISR(uint32_t iidx)
 {
+    g_dbg_isr_cnt++;
+    g_dbg_last_iidx = iidx;
+
     for (uint8_t ch = 0; ch < ULTRASONIC_CH_MAX; ch++) {
         if (iidx != _echo_iidx[ch]) continue;
+
+        g_dbg_state[ch] = (uint8_t)g_us[ch].state;
 
         bool high = (DL_GPIO_readPins(ULTRASONIC_PORT, _echo_pin[ch]) != 0);
 
@@ -126,6 +142,8 @@ void Ultrasonic_GPIOB_ISR(uint32_t iidx)
                 g_us[ch].rise_ticks = Timestamp_GetTicks();
                 g_us[ch].state      = US_STATE_WAIT_FALL;
             }
+            /* ⚠ 必须清除中断状态，否则下降沿不会被检测 */
+            DL_GPIO_clearInterruptStatus(ULTRASONIC_PORT, _echo_pin[ch]);
             break;
 
         case US_STATE_WAIT_FALL:
@@ -141,17 +159,21 @@ void Ultrasonic_GPIOB_ISR(uint32_t iidx)
                     /* distance_mm = pulse_us × 17 / 100  (×0.17, 纯整数) */
                     g_us[ch].distance_mm = (g_us[ch].pulse_us * 17U) / 100U;
                 } else {
-                    g_us[ch].distance_mm = 0;   /* 超时或异常 */
+                    g_us[ch].distance_mm = ULTRASONIC_INVALID_MM;
                 }
 
                 g_us[ch].data_ready = true;
                 g_us[ch].state      = US_STATE_IDLE;
             }
+            /* ⚠ 必须清除中断状态 */
+            DL_GPIO_clearInterruptStatus(ULTRASONIC_PORT, _echo_pin[ch]);
             break;
 
         case US_STATE_IDLE:
         default:
-            break;  /* 干扰脉冲，忽略 */
+            /* 干扰脉冲也要清除，否则会持续触发中断 */
+            DL_GPIO_clearInterruptStatus(ULTRASONIC_PORT, _echo_pin[ch]);
+            break;
         }
     }
 }

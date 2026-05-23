@@ -28,6 +28,8 @@
 #define GYRO_VEL                    14
 #define GYRO_POS                    15
 #define GIMBAL_MOVE_TEST            16
+#define ULTRASONIC_DEBUG            17
+#define Q1_TASK1                    18
 
 /* ============================ 时序执行上下文 ============================ */
 typedef struct {

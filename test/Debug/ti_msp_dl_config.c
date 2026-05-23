@@ -532,11 +532,11 @@ static const DL_TimerG_ClockConfig gUS_TIMERClockConfig = {
 
 /*
  * Timer load value (where the counter starts from) is calculated as (timerPeriod * timerClockFreq) - 1
- * US_TIMER_INST_LOAD_VALUE = (0 ms * 10000000 Hz) - 1
+ * US_TIMER_INST_LOAD_VALUE = (0 * 10000000 Hz) - 1
  */
 static const DL_TimerG_TimerConfig gUS_TIMERTimerConfig = {
     .period     = US_TIMER_INST_LOAD_VALUE,
-    .timerMode  = DL_TIMER_TIMER_MODE_ONE_SHOT,
+    .timerMode  = DL_TIMER_TIMER_MODE_PERIODIC,
     .startTimer = DL_TIMER_START,
 };
 

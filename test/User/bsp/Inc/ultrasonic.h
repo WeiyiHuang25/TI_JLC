@@ -29,8 +29,11 @@ extern "C" {
 
 #define ULTRASONIC_CH_MAX   2
 
-/** HC-SR04 最大量程 ~4m → 脉宽上限 ~23.5ms，我们用 25ms 超时 */
-#define ULTRASONIC_TIMEOUT_US  25000U
+/** HC-SR04 最大量程 4m → 脉宽 ~23.5ms，设 30ms 超时留余量 */
+#define ULTRASONIC_TIMEOUT_US  30000U
+
+/** 超时/无效测量时的哨兵值（0xFFFF 远大于 4m 上限 4000mm） */
+#define ULTRASONIC_INVALID_MM  0xFFFFU
 
 /* ========================================================================
  *  API
@@ -76,6 +79,19 @@ uint32_t Ultrasonic_GetPulseWidth_us(uint8_t ch);
  * @note  应用层不要直接调用
  */
 void Ultrasonic_GPIOB_ISR(uint32_t iidx);
+
+/* ========================================================================
+ *  Debug
+ * ======================================================================== */
+
+/** 调试计数器：触发次数 */
+extern volatile uint32_t g_dbg_trig_cnt;
+/** 调试计数器：ISR 进入次数 */
+extern volatile uint32_t g_dbg_isr_cnt;
+/** 调试：最后一次 ISR 收到的 IIDX 值 */
+extern volatile uint32_t g_dbg_last_iidx;
+/** 调试：各通道当前状态 (0=IDLE,1=WAIT_RISE,2=WAIT_FALL) */
+extern volatile uint8_t  g_dbg_state[2];
 
 #ifdef __cplusplus
 }

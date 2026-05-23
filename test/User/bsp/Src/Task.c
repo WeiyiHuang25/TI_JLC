@@ -22,7 +22,13 @@ uint32_t system_mode = TASK_INIT;
 extern uint32_t g_tick;
 extern bool init_ok;
 
+/* 超声波实时距离（mm），由 one_hundured_ms_callback 更新 */
+volatile uint32_t g_us_dist0 = 0;
+volatile uint32_t g_us_dist1 = 0;
+volatile uint32_t g_us_pulse0 = 0;
+volatile uint32_t g_us_pulse1 = 0;
 
+uint8_t q1_task1_start_buffer[2] = {0x01, 0xFF}; 
 
 
 
@@ -181,6 +187,30 @@ void while_task(void)
             _show_signed(0,  2, (int32_t)(jy901_yaw * 100), 16);
             if (flag_enter) { flag_enter = 0; Task_Done(); }
         }break;
+    case ULTRASONIC_DEBUG:
+        {
+            OLED_Clear();
+            OLED_ShowString(0, 0, (uint8_t *)"US Dist(mm)", 16);
+            OLED_ShowString(0, 2, (uint8_t *)"CH0:", 16);
+            if (g_us_dist0 == ULTRASONIC_INVALID_MM) {
+                OLED_ShowString(40, 2, (uint8_t *)"----", 16);
+            } else {
+                OLED_ShowNum(40, 2, g_us_dist0, 4, 16);
+            }
+            OLED_ShowString(0, 4, (uint8_t *)"CH1:", 16);
+            if (g_us_dist1 == ULTRASONIC_INVALID_MM) {
+                OLED_ShowString(40, 4, (uint8_t *)"----", 16);
+            } else {
+                OLED_ShowNum(40, 4, g_us_dist1, 4, 16);
+            }
+            OLED_ShowString(0, 6, (uint8_t *)"<- Exit", 16);
+            if (flag_enter) { flag_enter = 0; Task_Done(); }
+        }break;
+    case Q1_TASK1:
+        {
+            RUN_ONCE(once_flag[0], uart_send(q1_task1_start_buffer, sizeof(q1_task1_start_buffer)));
+            RUN_AFTER(once_flag[0], 1, NULL);
+        }
     default:
         break;
     }    
@@ -251,12 +281,12 @@ inline void one_hundured_ms_callback()
     }
     /* 读取上次结果（ISR 中已算好，非阻塞） */
     if (Ultrasonic_IsDataReady(0)) {
-        uint32_t d0 = Ultrasonic_GetDistance_mm(0);  /* mm */
-        (void)d0;  /* TODO: 用 d0 */
+        g_us_dist0  = Ultrasonic_GetDistance_mm(0);
+        g_us_pulse0 = Ultrasonic_GetPulseWidth_us(0);
     }
     if (Ultrasonic_IsDataReady(1)) {
-        uint32_t d1 = Ultrasonic_GetDistance_mm(1);  /* mm */
-        (void)d1;  /* TODO: 用 d1 */
+        g_us_dist1  = Ultrasonic_GetDistance_mm(1);
+        g_us_pulse1 = Ultrasonic_GetPulseWidth_us(1);
     }
 
     chasis_cal();

@@ -75,6 +75,7 @@ static menu_item_t menu_debug_items[] = {
     {"Gyro",          GYRO_CNT,   menu_gyro_items,   0},
     {"Gimbal",        GIMBAL_CNT, menu_gimbal_items, 0},
     {"Chasis",        CHASIS_CNT, menu_chasis_items,  0},
+    {"Ultrasonic",    0,          NULL,               ULTRASONIC_DEBUG},
     {"return",       0, NULL, MENU_VAL_BACK},
 };
 #define DEBUG_CNT  (sizeof(menu_debug_items) / sizeof(menu_item_t))
