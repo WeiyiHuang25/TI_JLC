@@ -27,15 +27,26 @@ extern bool init_ok;
 
 
 /* =========================================================================
- * 初始化
+ * 初始�?
  * ========================================================================= */
-static once_ctx_t once_flag[4];
+static once_ctx_t once_flag[10];
 
 void User_Init()
 {
     KEY_Init();
     Menu_Init();
     JY901_Init();
+}
+
+/* OLED 显示带符号整�?*/
+static void _show_signed(uint8_t x, uint8_t y, int32_t val, uint8_t sizey)
+{
+    if (val < 0) {
+        OLED_ShowString(x, y, (uint8_t *)"-", sizey);
+        OLED_ShowNum(x + 8, y, (uint32_t)(-val), 4, sizey);
+    } else {
+        OLED_ShowNum(x, y, (uint32_t)val, 5, sizey);
+    }
 }
 
 void while_task(void)
@@ -120,11 +131,55 @@ void while_task(void)
             gimbal_disable();
             Task_Done();
         }break;
-    case GIMBAL_TEST:
+    case GIMBAL_CONNECT_TEST:
         {
             RUN_ONCE(once_flag[1], gimbal_enable());
             RUN_AFTER(once_flag[1], 5,NULL);
-        }
+        }break;
+    case GIMBAL_MOVE_TEST:
+        {
+            static uint8_t step = 0;
+            /* 256细分, 51200脉冲/圈, 10°=1422脉冲 */
+            switch (step) {
+            case 0:
+                RUN_ONCE(once_flag[1], gimbal_enable());
+                RUN_AFTER(once_flag[1], 100, NULL);
+                if (RUN_ONCE_DONE(once_flag[1])) step = 1;
+                break;
+            case 1: /* Pitch CCW 10° */
+                RUN_ONCE(once_flag[2], gimbal_update(1, 500, 1422, 0, 0, 0));
+                RUN_AFTER(once_flag[2], 2000, NULL);
+                if (RUN_ONCE_DONE(once_flag[2])) step = 2;
+                break;
+            case 2: /* Pitch CW 10° */
+                RUN_ONCE(once_flag[3], gimbal_update(0, 500, 1422, 0, 0, 0));
+                RUN_AFTER(once_flag[3], 2000, NULL);
+                if (RUN_ONCE_DONE(once_flag[3])) step = 3;
+                break;
+            case 3: /* Yaw CCW 10° */
+                RUN_ONCE(once_flag[4], gimbal_update(0, 0, 0, 1, 500, 1422));
+                RUN_AFTER(once_flag[4], 2000, NULL);
+                if (RUN_ONCE_DONE(once_flag[4])) step = 4;
+                break;
+            case 4: /* Yaw CW 10° */
+                RUN_ONCE(once_flag[5], gimbal_update(0, 0, 0, 0, 500, 1422));
+                RUN_AFTER(once_flag[5], 2000, NULL);
+                if (RUN_ONCE_DONE(once_flag[5])) step = 5;
+                break;
+            case 5: /* Done */
+                gimbal_disable();
+                step = 0;
+                Task_Done();
+                break;
+            }
+        }break;
+    case GYRO_ACC:
+        {
+            OLED_Clear();
+            OLED_ShowString(0, 0, (uint8_t *)"Yaw", 16);
+            _show_signed(0,  2, (int32_t)(jy901_yaw * 100), 16);
+            if (flag_enter) { flag_enter = 0; Task_Done(); }
+        }break;
     default:
         break;
     }    
@@ -163,10 +218,16 @@ inline void CAN_Rx_FIFO0_New_Message_Callback(DL_MCAN_RxBufElement rxMsg)
         {
 
         }break;
-    case GIMBAL_TEST:
+    case GIMBAL_CONNECT_TEST:
         {
 
         }
+    case GIMBAL_MOVE_TEST:
+        { }break;
+    case GYRO_ACC:
+    case GYRO_VEL:
+    case GYRO_POS:
+        { }break;
     default:
         break;
     }
@@ -209,10 +270,16 @@ inline void one_hundured_ms_callback()
         {
 
         }break;
-    case GIMBAL_TEST:
+    case GIMBAL_CONNECT_TEST:
         {
             
         }
+    case GIMBAL_MOVE_TEST:
+        { }break;
+    case GYRO_ACC:
+    case GYRO_VEL:
+    case GYRO_POS:
+        { }break;
     default:
         break;
     }
@@ -223,7 +290,6 @@ inline void ms_callback()
 {
     if (!init_ok)
         return;
-    JY901_Update();
     KEY_Poll();
     if (system_mode == TASK_INIT) {
         Menu_Run();
@@ -258,10 +324,18 @@ inline void ms_callback()
         {
 
         }break;
-    case GIMBAL_TEST:
+    case GIMBAL_CONNECT_TEST:
         {
             
         }
+    case GIMBAL_MOVE_TEST:
+        { }break;
+
+    case GYRO_ACC:
+    case GYRO_VEL:
+    case GYRO_POS:
+        { }break;
+
     default:
         break;
     }
@@ -302,10 +376,16 @@ void chasis_move_done_callback()
         {
 
         }break;
-    case GIMBAL_TEST:
+    case GIMBAL_CONNECT_TEST:
         {
             
         }
+    case GIMBAL_MOVE_TEST:
+        { }break;
+    case GYRO_ACC:
+    case GYRO_VEL:
+    case GYRO_POS:
+        { }break;
     default:
         break;
     }
@@ -344,7 +424,7 @@ void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
         {
 
         }break;
-    case GIMBAL_TEST:
+    case GIMBAL_CONNECT_TEST:
         {
             uint8_t pitch_dir, yaw_dir;
             uint16_t pitch_vel, yaw_vel;
@@ -363,18 +443,26 @@ void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
                 gimbal_update(pitch_dir, pitch_vel, pitch_clk, yaw_dir, yaw_vel, yaw_clk);
             }
         }
+    case GIMBAL_MOVE_TEST:
+        { }break;
+    case GYRO_ACC:
+    case GYRO_VEL:
+    case GYRO_POS:
+        { }break;
     default:
         break;
     }
 }
 
-/* UART1 → JY901 SDK */
+/* UART1 �?测试回显 (�?bsp_UART1.c)，测试完成后取消注释 */
+#if 1
 void UART1_Rx_DMA_ToIdle_Callback(uint16_t size)
 {
     for (uint16_t i = 0; i < size; i++) {
         WitSerialDataIn(uart1_rx_buff[i]);
     }
 }
+#endif
 
 
 void Task_Cleanup(void)

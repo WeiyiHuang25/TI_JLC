@@ -45,16 +45,36 @@ static menu_item_t menu_debug_items[];
 
 
 
-/* ---- Debug子菜单 ---- */
+
+static menu_item_t menu_gyro_items[] = {
+    {"  Yaw",          0, NULL, GYRO_ACC},
+    {"  return",       0, NULL, MENU_VAL_BACK},
+};
+#define GYRO_CNT  (sizeof(menu_gyro_items) / sizeof(menu_item_t))
+
+static menu_item_t menu_gimbal_items[] = {
+    {"  Connect Test", 0, NULL, GIMBAL_CONNECT_TEST},
+    {"  Move Test",    0, NULL, GIMBAL_MOVE_TEST},
+    {"  Set Zero",     0, NULL, GIMBAL_SET_ZERO},
+    {"  Enable",       0, NULL, GIMBAL_ENABLE},
+    {"  Disable",      0, NULL, GIMBAL_DISABLE},
+    {"  Return Zero",  0, NULL, GIMBAL_RETURN_ZERO},
+    {"  return",       0, NULL, MENU_VAL_BACK},
+};
+#define GIMBAL_CNT  (sizeof(menu_gimbal_items) / sizeof(menu_item_t))
+
+static menu_item_t menu_chasis_items[] = {
+    {"  X Test",       0, NULL, CHASIS_X_TEST},
+    {"  Y Test",       0, NULL, CHASIS_Y_TEST},
+    {"  Wz Test",      0, NULL, CHASIS_WZ_TEST},
+    {"  return",       0, NULL, MENU_VAL_BACK},
+};
+#define CHASIS_CNT  (sizeof(menu_chasis_items) / sizeof(menu_item_t))
+
 static menu_item_t menu_debug_items[] = {
-    {"Gim set 0",       0, NULL, GIMBAL_SET_ZERO},
-    {"Gim en",       0, NULL, GIMBAL_ENABLE},
-    {"Gim dis",       0, NULL, GIMBAL_DISABLE},
-    {"Gim test",       0, NULL, GIMBAL_TEST},
-    {"Gim ret 0",       0, NULL, GIMBAL_RETURN_ZERO},
-    {"Cha x test",       0, NULL, CHASIS_X_TEST},
-    {"Cha y test",       0, NULL, CHASIS_Y_TEST},
-    {"Cha w test",       0, NULL, CHASIS_WZ_TEST},
+    {"Gyro",          GYRO_CNT,   menu_gyro_items,   0},
+    {"Gimbal",        GIMBAL_CNT, menu_gimbal_items, 0},
+    {"Chasis",        CHASIS_CNT, menu_chasis_items,  0},
     {"return",       0, NULL, MENU_VAL_BACK},
 };
 #define DEBUG_CNT  (sizeof(menu_debug_items) / sizeof(menu_item_t))

@@ -13,7 +13,11 @@ __IO uint8_t uart1_rx_dma_complete_flag = 1;
 __IO uint8_t uart1_rx_length = 0;
 
 
-__attribute__((weak)) void UART1_Rx_DMA_ToIdle_Callback(uint16_t size) {}
+// /* 测试: 回显收到的数据 */
+// void UART1_Rx_DMA_ToIdle_Callback(uint16_t size)
+// {
+//     uart1_send((uint8_t *)uart1_rx_buff, size);
+// }
 
 
 void uart1_send(uint8_t *buff, uint16_t size) {
@@ -53,6 +57,7 @@ void UART1_IRQHandler(void) {
             uart1_rx_length = uart1_rx_size;
             uart1_rx_dma_complete_flag = 1;
             UART1_Rx_DMA_ToIdle_Callback(uart1_rx_length);
+            uart1_receive_start();
         } break;
     }
 }
@@ -73,6 +78,7 @@ void uart1_isIDLE(void) {
             DL_DMA_disableChannel(DMA, DMA_CH3_CHAN_ID);
             stable_count = 0;
             UART1_Rx_DMA_ToIdle_Callback(uart1_rx_length);
+            uart1_receive_start();
         }
     } else {
         stable_count = 0;

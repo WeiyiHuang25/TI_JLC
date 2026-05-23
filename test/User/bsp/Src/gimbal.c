@@ -27,6 +27,6 @@ void gimbal_return_zero(void)
 void gimbal_update(uint8_t pitch_dir, uint16_t pitch_vel, uint32_t pitch_clk, uint8_t yaw_dir, uint16_t yaw_vel, uint32_t yaw_clk)
 {
     Emm_V5_Pos_Control(PITCH_MOTOR, pitch_dir, pitch_vel, 0, pitch_clk, false, false);
-    Emm_V5_Pos_Control(PITCH_MOTOR, yaw_dir, yaw_vel, 0, yaw_clk, false, false);
+    Emm_V5_Pos_Control(YAW_MOTOR, yaw_dir, yaw_vel, 0, yaw_clk, false, false);
 }
 

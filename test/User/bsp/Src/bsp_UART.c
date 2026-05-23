@@ -72,6 +72,7 @@ void UART0_IRQHandler(){
             uart_rx_length = rx_size;
             uart_rx_dma_complete_flag = 1;
             UART_Rx_DMA_ToIdle_Callback(uart_rx_length);
+            uart_receive_start();
         }break;
     }
 }
@@ -97,6 +98,7 @@ void uart_isIDLE(){
             DL_DMA_disableChannel(DMA, DMA_CH1_CHAN_ID);
             stable_count = 0; // 重置计数器
             UART_Rx_DMA_ToIdle_Callback(uart_rx_length);
+            uart_receive_start();
         }
     } else {
         stable_count = 0;

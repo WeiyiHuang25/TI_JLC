@@ -56,6 +56,16 @@ static void mec_inverse(const chasis *cs)
     if (motor_invert[MOTOR_FR]) user_chasis.FR.exp_rpm = -user_chasis.FR.exp_rpm;
     if (motor_invert[MOTOR_RL]) user_chasis.RL.exp_rpm = -user_chasis.RL.exp_rpm;
     if (motor_invert[MOTOR_RR]) user_chasis.RR.exp_rpm = -user_chasis.RR.exp_rpm;
+
+    /* 各轮方向修正系数 (EzTuner.h) */
+    if (user_chasis.FL.exp_rpm > 0.0f) user_chasis.FL.exp_rpm *= CHASIS_FL_POS_SCALE;
+    else                               user_chasis.FL.exp_rpm *= CHASIS_FL_NEG_SCALE;
+    if (user_chasis.FR.exp_rpm > 0.0f) user_chasis.FR.exp_rpm *= CHASIS_FR_POS_SCALE;
+    else                               user_chasis.FR.exp_rpm *= CHASIS_FR_NEG_SCALE;
+    if (user_chasis.RL.exp_rpm > 0.0f) user_chasis.RL.exp_rpm *= CHASIS_RL_POS_SCALE;
+    else                               user_chasis.RL.exp_rpm *= CHASIS_RL_NEG_SCALE;
+    if (user_chasis.RR.exp_rpm > 0.0f) user_chasis.RR.exp_rpm *= CHASIS_RR_POS_SCALE;
+    else                               user_chasis.RR.exp_rpm *= CHASIS_RR_NEG_SCALE;
 }
 
 

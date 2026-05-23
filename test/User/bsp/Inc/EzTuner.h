@@ -15,6 +15,22 @@
 #define OPENLOOP_RR_RATIO       1.0f     /* RR 后右轮 PWM 比例 */
 #define OPENLOOP_MIN_DUTY       300      /* 最小启动占空比 (克服静摩擦) */
 
+/* =========================================================================
+ * 麦轮各轮方向修正系数 (1.0=不变, >1 加速, <1 减速)
+ * POS = 正转(从车轮自身视角), NEG = 反转
+ * 前进时四轮均为 POS, 后退均为 NEG
+ * 左移时 FL/RR 为 NEG, FR/RL 为 POS
+ * 右移时 FL/RR 为 POS, FR/RL 为 NEG
+ * ========================================================================= */
+#define CHASIS_FL_POS_SCALE  1.0f
+#define CHASIS_FL_NEG_SCALE  1.0f
+#define CHASIS_FR_POS_SCALE  1.0f
+#define CHASIS_FR_NEG_SCALE  1.0f
+#define CHASIS_RL_POS_SCALE  1.0f
+#define CHASIS_RL_NEG_SCALE  1.0f
+#define CHASIS_RR_POS_SCALE  1.0f
+#define CHASIS_RR_NEG_SCALE  1.0f
+
 
 // #define FL_PID_KP 1.0f
 // #define FL_PID_KI 0.01f

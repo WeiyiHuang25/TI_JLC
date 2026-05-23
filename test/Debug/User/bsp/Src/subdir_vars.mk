@@ -6,6 +6,7 @@ SHELL = cmd.exe
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../User/bsp/Src/JY901.c \
 ../User/bsp/Src/Task.c \
 ../User/bsp/Src/ZDT_CAN.c \
 ../User/bsp/Src/ZDT_Driver.c \
@@ -22,6 +23,7 @@ C_SRCS += \
 ../User/bsp/Src/wit_c_sdk.c 
 
 C_DEPS += \
+./User/bsp/Src/JY901.d \
 ./User/bsp/Src/Task.d \
 ./User/bsp/Src/ZDT_CAN.d \
 ./User/bsp/Src/ZDT_Driver.d \
@@ -38,6 +40,7 @@ C_DEPS += \
 ./User/bsp/Src/wit_c_sdk.d 
 
 OBJS += \
+./User/bsp/Src/JY901.o \
 ./User/bsp/Src/Task.o \
 ./User/bsp/Src/ZDT_CAN.o \
 ./User/bsp/Src/ZDT_Driver.o \
@@ -54,6 +57,7 @@ OBJS += \
 ./User/bsp/Src/wit_c_sdk.o 
 
 OBJS__QUOTED += \
+"User\bsp\Src\JY901.o" \
 "User\bsp\Src\Task.o" \
 "User\bsp\Src\ZDT_CAN.o" \
 "User\bsp\Src\ZDT_Driver.o" \
@@ -70,6 +74,7 @@ OBJS__QUOTED += \
 "User\bsp\Src\wit_c_sdk.o" 
 
 C_DEPS__QUOTED += \
+"User\bsp\Src\JY901.d" \
 "User\bsp\Src\Task.d" \
 "User\bsp\Src\ZDT_CAN.d" \
 "User\bsp\Src\ZDT_Driver.d" \
@@ -86,6 +91,7 @@ C_DEPS__QUOTED += \
 "User\bsp\Src\wit_c_sdk.d" 
 
 C_SRCS__QUOTED += \
+"../User/bsp/Src/JY901.c" \
 "../User/bsp/Src/Task.c" \
 "../User/bsp/Src/ZDT_CAN.c" \
 "../User/bsp/Src/ZDT_Driver.c" \

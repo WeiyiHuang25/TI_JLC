@@ -23,7 +23,11 @@
 #define GIMBAL_RETURN_ZERO          9
 #define GIMBAL_ENABLE               10
 #define GIMBAL_DISABLE              11
-#define GIMBAL_TEST                 12
+#define GIMBAL_CONNECT_TEST         12
+#define GYRO_ACC                    13
+#define GYRO_VEL                    14
+#define GYRO_POS                    15
+#define GIMBAL_MOVE_TEST            16
 
 /* ============================ 时序执行上下文 ============================ */
 typedef struct {
