@@ -30,6 +30,7 @@
 #define GIMBAL_MOVE_TEST            16
 #define ULTRASONIC_DEBUG            17
 #define Q1_TASK1                    18
+#define Q1_TASK2                    19
 
 /* ============================ 时序执行上下文 ============================ */
 typedef struct {
@@ -58,4 +59,5 @@ typedef struct {
 
 void User_Init(void);
 void Task_Cleanup(void);
+void Task_Jump(uint32_t next_mode);
 

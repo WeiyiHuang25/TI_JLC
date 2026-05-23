@@ -46,8 +46,10 @@
 
 
 
-#define Q1_TASK1_VELOCITY       0.5
-#define Q1_TASK1_TIME           
+#define Q1_TASK1_VELOCITY       0.5f       //平移避障的时间
+#define Q1_TASK1_TIME_0           1000U   // 到障碍区前的时间  OK
+#define Q1_TASK1_TIME_1           3000U   // 向左平移的最长时间
+#define Q1_TASK1_TIME_2         1000U  //通过障碍区的时间
 
 
 // #define FL_PID_KP 1.0f

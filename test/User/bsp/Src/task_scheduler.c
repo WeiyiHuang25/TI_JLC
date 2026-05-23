@@ -80,9 +80,33 @@ static menu_item_t menu_debug_items[] = {
 };
 #define DEBUG_CNT  (sizeof(menu_debug_items) / sizeof(menu_item_t))
 
+
+
+
+
+
+// 问题子任务
+
+static menu_item_t menu_q1_items[] = {
+    {"T1",          0,   NULL,   Q1_TASK1},
+};
+#define Q1_CNT  (sizeof(menu_q1_items) / sizeof(menu_item_t))
+
+
+// 问题
+static menu_item_t menu_question_items[] = {
+    {"Q1",  Q1_CNT,   menu_q1_items,   0},
+};
+#define QUESTION_CNT  (sizeof(menu_question_items) / sizeof(menu_item_t))
+
+
+
+
+
 /* ---- 根菜单项数组 ---- */
 static menu_item_t menu_root_items[] = {
     {"Debug",   DEBUG_CNT, menu_debug_items, 0},
+    {"Question",   QUESTION_CNT, menu_question_items, 0}
 };
 #define ROOT_CNT  (sizeof(menu_root_items) / sizeof(menu_item_t))
 
@@ -236,4 +260,19 @@ void Task_Done(void)
     system_mode = TASK_INIT;
     Task_Cleanup();
     Menu_Init();
+}
+
+/* ============================ 任务跳转（不切屏） ============================ */
+
+/**
+ * @brief 结束当前任务，直接跳转到另一个任务，不经过菜单。
+ * @param next_mode  目标任务 ID（如 ULTRASONIC_DEBUG, CHASIS_X_TEST...）
+ *
+ * 与 Task_Done() 的区别：不调用 Menu_Init()，屏幕保持当前内容。
+ */
+void Task_Jump(uint32_t next_mode)
+{
+    system_mode = TASK_INIT;     /* 先退出当前任务 */
+    Task_Cleanup();              /* 重置 RUN_ONCE 上下文 */
+    system_mode = next_mode;     /* 进入新任务 */
 }

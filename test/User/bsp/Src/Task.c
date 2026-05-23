@@ -28,7 +28,7 @@ volatile uint32_t g_us_dist1 = 0;
 volatile uint32_t g_us_pulse0 = 0;
 volatile uint32_t g_us_pulse1 = 0;
 
-uint8_t q1_task1_start_buffer[2] = {0x01, 0xFF}; 
+
 
 
 
@@ -208,9 +208,24 @@ void while_task(void)
         }break;
     case Q1_TASK1:
         {
+            RUN_ONCE(once_flag[9], gimbal_return_zero());
+            RUN_AFTER(once_flag[9], 1, NULL);
+            uint8_t q1_task1_start_buffer[2] = {Q1_TASK1, 0xFF};
             RUN_ONCE(once_flag[0], uart_send(q1_task1_start_buffer, sizeof(q1_task1_start_buffer)));
             RUN_AFTER(once_flag[0], 1, NULL);
-        }
+            if (RUN_ONCE_DONE(once_flag[0]))
+            {
+                uint8_t q1_task1_to_barrier_buffer[2] = {0x01, 0x1B};
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0.5, 0, 0, 0.7, 0.3, Q1_TASK1_TIME_0));
+                RUN_AFTER(once_flag[1], Q1_TASK1_TIME_0, uart1_send(q1_task1_to_barrier_buffer, sizeof(q1_task1_to_barrier_buffer)));
+            }
+        }break;
+    case Q1_TASK2:
+        {
+            uint8_t q1_task2_start_buffer[2] = {Q1_TASK2, 0xFF};
+            RUN_ONCE(once_flag[0], uart_send(q1_task2_start_buffer, sizeof(q1_task2_start_buffer)));
+            RUN_AFTER(once_flag[0], 1, NULL);
+        }break;
     default:
         break;
     }    
@@ -496,6 +511,26 @@ void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
     case GYRO_VEL:
     case GYRO_POS:
         { }break;
+    case Q1_TASK1:
+    {
+        if (RUN_ONCE_DONE(once_flag[1]))
+        {
+            if (uart_rx_buff[0] == Q1_TASK1)
+            {
+                if (uart_rx_buff[1] == false)
+                {
+                    RUN_ONCE(once_flag[2], chasis_trapezoid_move(0, 0.5, 0, 0.7, 0.3, Q1_TASK1_TIME_1));
+                    RUN_AFTER(once_flag[2], 1, NULL);
+                }
+                else
+                {
+                    chasis_brake();
+                    RUN_ONCE(once_flag[3], chasis_trapezoid_move(0.5, 0, 0, 0.7, 0.3, Q1_TASK1_TIME_2));
+                    RUN_AFTER(once_flag[3], Q1_TASK1_TIME_2,Task_Jump(Q1_TASK2));
+                }
+            }
+        }
+    }break;
     default:
         break;
     }
