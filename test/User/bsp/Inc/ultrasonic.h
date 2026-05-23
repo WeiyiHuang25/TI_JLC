@@ -29,8 +29,8 @@ extern "C" {
 
 #define ULTRASONIC_CH_MAX   2
 
-/** HC-SR04 最大量程 4m → 脉宽 ~23.5ms，设 30ms 超时留余量 */
-#define ULTRASONIC_TIMEOUT_US  30000U
+/** HC-SR04 最大量程 4m → 脉宽 ~23.5ms，38ms 兼容弱回波 */
+#define ULTRASONIC_TIMEOUT_US  38000U
 
 /** 超时/无效测量时的哨兵值（0xFFFF 远大于 4m 上限 4000mm） */
 #define ULTRASONIC_INVALID_MM  0xFFFFU

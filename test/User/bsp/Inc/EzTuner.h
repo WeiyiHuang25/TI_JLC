@@ -41,15 +41,45 @@
  //                        FL    FR    RL    RR
 #define MEC_FWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 前进 */
 #define MEC_BWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 后退 */
-#define MEC_LEFT_SCALE  { 1.0f, 1.1f, 1.0f, 1.0f }   /* 左移 */
+#define MEC_LEFT_SCALE  { 1.0f, 1.2f, 1.0f, 1.0f }   /* 左移 */
 #define MEC_RIGHT_SCALE { 1.0f, 1.0f, 1.0f, 1.0f }   /* 右移 */
 
 
 
-#define Q1_TASK1_VELOCITY       0.5f       //平移避障的时间
-#define Q1_TASK1_TIME_0           1000U   // 到障碍区前的时间  OK
-#define Q1_TASK1_TIME_1           3000U   // 向左平移的最长时间
-#define Q1_TASK1_TIME_2         1000U  //通过障碍区的时间
+#define Q2_TASK1_VELOCITY       0.5f       //平移避障的时间
+#define Q2_TASK1_TIME_0           1000U   // 到障碍区前的时间  OK
+#define Q2_TASK1_TIME_1           3000U   // 向左平移的最长时间
+#define Q2_TASK1_TIME_2         1000U  //通过障碍区的时间
+
+/* Q1: X→Y→Wz 三步任务，每步时间独立可调 */
+#define Q1_TASK1_TIME_X           2700U
+#define Q1_TASK1_TIME_Y           3700U
+#define Q1_TASK1_TIME_WZ          400U
+
+#define Q1_TASK2_TIME_X           2000U
+#define Q1_TASK2_TIME_Y           2000U
+#define Q1_TASK2_TIME_WZ          2000U
+
+#define Q1_TASK3_TIME_X           3000U
+#define Q1_TASK3_TIME_Y           3000U
+#define Q1_TASK3_TIME_WZ          3000U
+
+/* Q1: 运动段间延时（归零后直接走，X→Y、Y→Wz 间可调） */
+#define Q1_TASK1_PAUSE_1          500U
+#define Q1_TASK1_PAUSE_2          500U
+#define Q1_TASK2_PAUSE_1          500U
+#define Q1_TASK2_PAUSE_2          500U
+#define Q1_TASK3_PAUSE_1          500U
+#define Q1_TASK3_PAUSE_2          500U
+
+/* Q1: 底盘运动参数（速度/加减速，XY 独立） */
+#define Q1_VX                   0.5f
+#define Q1_VY                   0.5f
+#define Q1_VWZ                 3.14f
+#define Q1_ACCEL_X             0.7f
+#define Q1_DECEL_X             0.3f
+#define Q1_ACCEL_Y             0.7f
+#define Q1_DECEL_Y             0.3f
 
 
 // #define FL_PID_KP 1.0f

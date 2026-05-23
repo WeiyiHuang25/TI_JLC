@@ -76,6 +76,7 @@ static menu_item_t menu_debug_items[] = {
     {"Gimbal",        GIMBAL_CNT, menu_gimbal_items, 0},
     {"Chasis",        CHASIS_CNT, menu_chasis_items,  0},
     {"Ultrasonic",    0,          NULL,               ULTRASONIC_DEBUG},
+    {"Set Origin",    0,          NULL,               US_SET_ORIGIN},
     {"return",       0, NULL, MENU_VAL_BACK},
 };
 #define DEBUG_CNT  (sizeof(menu_debug_items) / sizeof(menu_item_t))
@@ -89,13 +90,24 @@ static menu_item_t menu_debug_items[] = {
 
 static menu_item_t menu_q1_items[] = {
     {"T1",          0,   NULL,   Q1_TASK1},
+    {"T2",          0,   NULL,   Q1_TASK2},
+    {"T3",          0,   NULL,   Q1_TASK3},
+    {"return",       0, NULL, MENU_VAL_BACK},
 };
 #define Q1_CNT  (sizeof(menu_q1_items) / sizeof(menu_item_t))
+
+static menu_item_t menu_q2_items[] = {
+    {"T1",          0,   NULL,   Q2_TASK1},
+    {"return",       0, NULL, MENU_VAL_BACK},
+};
+#define Q2_CNT  (sizeof(menu_q2_items) / sizeof(menu_item_t))
 
 
 // 问题
 static menu_item_t menu_question_items[] = {
     {"Q1",  Q1_CNT,   menu_q1_items,   0},
+    {"Q2",  Q2_CNT,   menu_q2_items,   0},
+    {"return",       0, NULL, MENU_VAL_BACK},
 };
 #define QUESTION_CNT  (sizeof(menu_question_items) / sizeof(menu_item_t))
 
