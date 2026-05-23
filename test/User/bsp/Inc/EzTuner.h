@@ -54,11 +54,11 @@
 /* Q1: X→Y→Wz 三步任务，每步时间独立可调 */
 #define Q1_TASK1_TIME_X           2700U
 #define Q1_TASK1_TIME_Y           3700U
-#define Q1_TASK1_TIME_WZ          400U
+#define Q1_TASK1_TIME_WZ          500U
 
-#define Q1_TASK2_TIME_X           2000U
-#define Q1_TASK2_TIME_Y           2000U
-#define Q1_TASK2_TIME_WZ          2000U
+#define Q1_TASK2_TIME_X           2700U
+#define Q1_TASK2_TIME_Y           2600U
+#define Q1_TASK2_TIME_WZ          720U
 
 #define Q1_TASK3_TIME_X           3000U
 #define Q1_TASK3_TIME_Y           3000U
