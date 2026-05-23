@@ -24,6 +24,7 @@ const SYSCTL        = scripting.addModule("/ti/driverlib/SYSCTL");
 const SYSTICK       = scripting.addModule("/ti/driverlib/SYSTICK");
 const UART          = scripting.addModule("/ti/driverlib/UART", {}, false);
 const UART1         = UART.addInstance();
+const UART2         = UART.addInstance();
 const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 
 /**
@@ -240,6 +241,30 @@ UART1.DMA_CHANNEL_RX.dstLength       = "BYTE";
 UART1.DMA_CHANNEL_RX.transferSize    = 4096;
 UART1.DMA_CHANNEL_RX.enableInterrupt = true;
 
+UART2.$name                          = "UART_1";
+UART2.enabledDMATXTriggers           = "DL_UART_DMA_INTERRUPT_TX";
+UART2.enabledDMARXTriggers           = "DL_UART_DMA_INTERRUPT_RX";
+UART2.rxFifoThreshold                = "DL_UART_RX_FIFO_LEVEL_ONE_ENTRY";
+UART2.enableFIFO                     = true;
+UART2.rxTimeoutValue                 = 10;
+UART2.enabledInterrupts              = ["DMA_DONE_RX","DMA_DONE_TX","EOT_DONE"];
+UART2.peripheral.$assign             = "UART1";
+UART2.peripheral.rxPin.$assign       = "PA9";
+UART2.peripheral.txPin.$assign       = "PA8";
+UART2.txPinConfig.$name              = "ti_driverlib_gpio_GPIOPinGeneric12";
+UART2.rxPinConfig.$name              = "ti_driverlib_gpio_GPIOPinGeneric13";
+UART2.DMA_CHANNEL_TX.$name           = "DMA_CH2";
+UART2.DMA_CHANNEL_TX.addressMode     = "b2f";
+UART2.DMA_CHANNEL_TX.srcLength       = "BYTE";
+UART2.DMA_CHANNEL_TX.dstLength       = "BYTE";
+UART2.DMA_CHANNEL_TX.enableInterrupt = true;
+UART2.DMA_CHANNEL_RX.$name           = "DMA_CH3";
+UART2.DMA_CHANNEL_RX.addressMode     = "f2b";
+UART2.DMA_CHANNEL_RX.srcLength       = "BYTE";
+UART2.DMA_CHANNEL_RX.dstLength       = "BYTE";
+UART2.DMA_CHANNEL_RX.transferSize    = 4096;
+UART2.DMA_CHANNEL_RX.enableInterrupt = true;
+
 ProjectConfig.genLibCMSIS = true;
 
 /**
@@ -257,5 +282,7 @@ I2C1.peripheral.$suggestSolution                   = "I2C1";
 MCAN1.peripheral.$suggestSolution                  = "CANFD0";
 PWM1.peripheral.$suggestSolution                   = "TIMA0";
 UART1.peripheral.$suggestSolution                  = "UART0";
-UART1.DMA_CHANNEL_TX.peripheral.$suggestSolution   = "DMA_CH1";
-UART1.DMA_CHANNEL_RX.peripheral.$suggestSolution   = "DMA_CH0";
+UART1.DMA_CHANNEL_TX.peripheral.$suggestSolution   = "DMA_CH3";
+UART1.DMA_CHANNEL_RX.peripheral.$suggestSolution   = "DMA_CH2";
+UART2.DMA_CHANNEL_TX.peripheral.$suggestSolution   = "DMA_CH1";
+UART2.DMA_CHANNEL_RX.peripheral.$suggestSolution   = "DMA_CH0";

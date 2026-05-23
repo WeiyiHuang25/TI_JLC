@@ -32,6 +32,7 @@
 
 #include "ti_msp_dl_config.h"
 #include "bsp_UART.h"
+#include "bsp_UART1.h"
 #include "bsp_CAN.h"
 #include "bsp_PWM.h"
 #include "bsp_oled.h"
@@ -77,7 +78,9 @@ int main(void)
     OLED_Init();
     NVIC_EnableIRQ(CANFD0_INT_IRQn);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
+    NVIC_EnableIRQ(UART_1_INST_INT_IRQN);
     uart_receive_start();
+    uart1_receive_start();
     User_Init();
     // chasis_set_velocity(0, 0, 3.14/10);
     // chasis_set_velocity(-0.5, 0, 0);
@@ -123,6 +126,7 @@ void SysTick_Handler(void)
 {
 
     uart_isIDLE();
+    uart1_isIDLE();
     g_tick++;
     if ((g_tick % 10U) == 0U) {
         g_flag_100hz = 1;

@@ -7,12 +7,14 @@
 "./User/bsp/Src/bsp_CAN.o"
 "./User/bsp/Src/bsp_PWM.o"
 "./User/bsp/Src/bsp_UART.o"
+"./User/bsp/Src/bsp_UART1.o"
 "./User/bsp/Src/bsp_key.o"
 "./User/bsp/Src/bsp_oled.o"
 "./User/bsp/Src/chasis.o"
 "./User/bsp/Src/gimbal.o"
 "./User/bsp/Src/pid.o"
 "./User/bsp/Src/task_scheduler.o"
+"./User/bsp/Src/wit_c_sdk.o"
 -l"./device_linker.cmd"
 -ldevice.cmd.genlibs
 -llibc.a

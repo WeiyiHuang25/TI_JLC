@@ -7,8 +7,9 @@
 #include "gimbal.h"
 #include <string.h>
 #include "bsp_UART.h"
-
-
+#include "bsp_UART1.h"
+#include "wit_c_sdk.h"
+#include "JY901.h"
 
 void CAN_Rx_FIFO0_New_Message_Callback(DL_MCAN_RxBufElement rxMsg);
 void one_hundured_ms_callback();
@@ -34,6 +35,7 @@ void User_Init()
 {
     KEY_Init();
     Menu_Init();
+    JY901_Init();
 }
 
 void while_task(void)
@@ -176,6 +178,7 @@ inline void one_hundured_ms_callback()
     if (!init_ok)
         return;
     chasis_cal();
+    JY901_Update();
     switch (system_mode)
     {
     case GIMBAL_SET_ZERO:
@@ -220,6 +223,7 @@ inline void ms_callback()
 {
     if (!init_ok)
         return;
+    JY901_Update();
     KEY_Poll();
     if (system_mode == TASK_INIT) {
         Menu_Run();
@@ -361,6 +365,14 @@ void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
         }
     default:
         break;
+    }
+}
+
+/* UART1 → JY901 SDK */
+void UART1_Rx_DMA_ToIdle_Callback(uint16_t size)
+{
+    for (uint16_t i = 0; i < size; i++) {
+        WitSerialDataIn(uart1_rx_buff[i]);
     }
 }
 

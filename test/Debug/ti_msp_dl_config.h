@@ -194,17 +194,39 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define UART_0_BAUD_RATE                                                (115200)
 #define UART_0_IBRD_40_MHZ_115200_BAUD                                      (21)
 #define UART_0_FBRD_40_MHZ_115200_BAUD                                      (46)
+/* Defines for UART_1 */
+#define UART_1_INST                                                        UART1
+#define UART_1_INST_FREQUENCY                                           40000000
+#define UART_1_INST_IRQHandler                                  UART1_IRQHandler
+#define UART_1_INST_INT_IRQN                                      UART1_INT_IRQn
+#define GPIO_UART_1_RX_PORT                                                GPIOA
+#define GPIO_UART_1_TX_PORT                                                GPIOA
+#define GPIO_UART_1_RX_PIN                                         DL_GPIO_PIN_9
+#define GPIO_UART_1_TX_PIN                                         DL_GPIO_PIN_8
+#define GPIO_UART_1_IOMUX_RX                                     (IOMUX_PINCM20)
+#define GPIO_UART_1_IOMUX_TX                                     (IOMUX_PINCM19)
+#define GPIO_UART_1_IOMUX_RX_FUNC                      IOMUX_PINCM20_PF_UART1_RX
+#define GPIO_UART_1_IOMUX_TX_FUNC                      IOMUX_PINCM19_PF_UART1_TX
+#define UART_1_BAUD_RATE                                                  (9600)
+#define UART_1_IBRD_40_MHZ_9600_BAUD                                       (260)
+#define UART_1_FBRD_40_MHZ_9600_BAUD                                        (27)
 
 
 
 
 
 /* Defines for DMA_CH0 */
-#define DMA_CH0_CHAN_ID                                                      (1)
+#define DMA_CH0_CHAN_ID                                                      (3)
 #define UART_0_INST_DMA_TRIGGER_0                            (DMA_UART0_TX_TRIG)
 /* Defines for DMA_CH1 */
-#define DMA_CH1_CHAN_ID                                                      (0)
+#define DMA_CH1_CHAN_ID                                                      (2)
 #define UART_0_INST_DMA_TRIGGER_1                            (DMA_UART0_RX_TRIG)
+/* Defines for DMA_CH2 */
+#define DMA_CH2_CHAN_ID                                                      (1)
+#define UART_1_INST_DMA_TRIGGER_0                            (DMA_UART1_TX_TRIG)
+/* Defines for DMA_CH3 */
+#define DMA_CH3_CHAN_ID                                                      (0)
+#define UART_1_INST_DMA_TRIGGER_1                            (DMA_UART1_RX_TRIG)
 
 
 /* Port definition for Pin Group LED */
@@ -281,6 +303,7 @@ void SYSCFG_DL_RL_OUT_init(void);
 void SYSCFG_DL_RR_OUT_init(void);
 void SYSCFG_DL_I2C_OLED_init(void);
 void SYSCFG_DL_UART_0_init(void);
+void SYSCFG_DL_UART_1_init(void);
 void SYSCFG_DL_DMA_init(void);
 
 void SYSCFG_DL_SYSTICK_init(void);
