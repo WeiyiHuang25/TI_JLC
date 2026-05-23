@@ -48,12 +48,16 @@ typedef struct
  * 底盘控制 API
  * ========================================================================= */
 extern chasis user_chasis;
+extern bool  chasis_braked;          /* 刹车完成=1, 开始运动=0 */
+extern bool  chasis_trapezoid_done;  /* 梯形运动完成=1 */
 
 void chasis_update(void);
 void chasis_cal(void);
 void chasis_set_velocity(float vx, float vy, float wz);
 void chasis_stop(void);
 void chasis_brake(void);
+void chasis_linear_brake(uint32_t time_ms);
+void chasis_trapezoid_move(float vx, float vy, float wz, float accel, uint32_t time_ms);
 
 
 

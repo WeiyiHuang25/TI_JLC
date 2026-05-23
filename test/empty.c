@@ -39,6 +39,8 @@
 #include "Task.h"
 #include "EzTuner.h"
 #include "gimbal.h"
+#include "timer.h"
+#include "ultrasonic.h"
 
 volatile uint32_t start_time;
 extern uint32_t system_mode;
@@ -79,6 +81,8 @@ int main(void)
     NVIC_EnableIRQ(CANFD0_INT_IRQn);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     NVIC_EnableIRQ(UART_1_INST_INT_IRQN);
+    Timestamp_Init();
+    Ultrasonic_Init();
     uart_receive_start();
     uart1_receive_start();
     User_Init();

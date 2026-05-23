@@ -95,7 +95,9 @@ empty.o: ../empty.c ti_msp_dl_config.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/chasis.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/EzTuner.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_key.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/gimbal.h
+ D:/rmLearning/TI/test/test/User/bsp/Inc/gimbal.h \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/timer.h \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/ultrasonic.h
 ti_msp_dl_config.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/msp/msp.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/DeviceFamily.h:
@@ -192,3 +194,5 @@ D:/rmLearning/TI/test/test/User/bsp/Inc/chasis.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/EzTuner.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_key.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/gimbal.h:
+D:/rmLearning/TI/test/test/User/bsp/Inc/timer.h:
+D:/rmLearning/TI/test/test/User/bsp/Inc/ultrasonic.h:

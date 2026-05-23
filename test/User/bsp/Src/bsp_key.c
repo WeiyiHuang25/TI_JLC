@@ -1,4 +1,5 @@
 #include "bsp_key.h"
+#include "ultrasonic.h"
 
 static volatile uint32_t key_tick[2] = {0};
 extern volatile uint32_t g_tick;
@@ -9,7 +10,7 @@ extern volatile uint32_t g_tick;
 void KEY_Init(void)
 {
     NVIC_EnableIRQ(KEY_GPIOA_INT_IRQN);
-    NVIC_EnableIRQ(KEY_GPIOB_INT_IRQN);
+    NVIC_EnableIRQ(GPIO_MULTIPLE_GPIOB_INT_IRQN);
 }
 
 /* =========================================================================
@@ -23,9 +24,19 @@ void GROUP1_IRQHandler(void)
     case KEY_GPIOA_INT_IIDX:
         key_tick[0] = g_tick;
         break;
-    case KEY_GPIOB_INT_IIDX:
-        key_tick[1] = g_tick;
+    case GPIO_MULTIPLE_GPIOB_INT_IIDX: {
+        /* GPIOB 中断共享：KEY_B21 + ULTRASONIC_0 + ULTRASONIC_1 */
+        uint32_t iidx = DL_GPIO_getPendingInterrupt(GPIOB);
+
+        if (iidx == KEY_B21_IIDX) {
+            DL_GPIO_clearInterruptStatus(GPIOB, KEY_B21_PIN);
+            key_tick[1] = g_tick;
+        }
+
+        /* 超声波 ECHO 引脚处理 */
+        Ultrasonic_GPIOB_ISR(iidx);
         break;
+    }
     }
 }
 

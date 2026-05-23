@@ -10,6 +10,7 @@
 #include "bsp_UART1.h"
 #include "wit_c_sdk.h"
 #include "JY901.h"
+#include "ultrasonic.h"
 
 void CAN_Rx_FIFO0_New_Message_Callback(DL_MCAN_RxBufElement rxMsg);
 void one_hundured_ms_callback();
@@ -58,48 +59,48 @@ void while_task(void)
             gimbal_set_zero();
             Task_Done();
         }break;
-    case CHASIS_X_TEST:
+        case CHASIS_X_TEST:
         {
-            RUN_ONCE(once_flag[1], chasis_set_velocity(0.5, 0, 0));
-            RUN_AFTER(once_flag[1], 5000, NULL);
-            if(RUN_ONCE_DONE(once_flag[1]))
-            {
-                RUN_ONCE(once_flag[2], chasis_brake());
-                RUN_AFTER(once_flag[2], 100, NULL);
-            }
-            if(RUN_ONCE_DONE(once_flag[2]))
-            {
-                RUN_ONCE(once_flag[3], chasis_set_velocity(-0.5, 0, 0));
-                RUN_AFTER(once_flag[3], 5000, chasis_brake());                
-            }
-            if(RUN_ONCE_DONE(once_flag[3]))
-            {
+            static uint8_t step = 0;
+            switch (step) {
+            case 0:
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0.5, 0, 0, 0.5, 4000));
+                if (chasis_trapezoid_done) step = 1;
+                break;
+            case 1:
+                RUN_ONCE(once_flag[2], chasis_trapezoid_move(-0.5, 0, 0, 0.5, 4000));
+                if (chasis_trapezoid_done) step = 2;
+                break;
+            case 2:
+                step = 0;
                 Task_Done();
+                break;
             }
         }break;
+
     case CHASIS_Y_TEST:
         {
-            RUN_ONCE(once_flag[1], chasis_set_velocity(0, 0.5, 0));
-            RUN_AFTER(once_flag[1], 5000, NULL);
-            if(RUN_ONCE_DONE(once_flag[1]))
-            {
-                RUN_ONCE(once_flag[2], chasis_brake());
-                RUN_AFTER(once_flag[2], 100, NULL);
-            }
-            if(RUN_ONCE_DONE(once_flag[2]))
-            {
-                RUN_ONCE(once_flag[3], chasis_set_velocity(0, -0.5, 0));
-                RUN_AFTER(once_flag[3], 5000, chasis_brake());
-            }
-            if(RUN_ONCE_DONE(once_flag[3]))
-            {
+            static uint8_t step = 0;
+            switch (step) {
+            case 0:
+                RUN_ONCE(once_flag[3], chasis_trapezoid_move(0, 0.5, 0, 0.5, 4000));
+                if (chasis_trapezoid_done) step = 1;
+                break;
+            case 1:
+                RUN_ONCE(once_flag[4], chasis_trapezoid_move(0, -0.5, 0, 0.5, 4000));
+                if (chasis_trapezoid_done) step = 2;
+                break;
+            case 2:
+                step = 0;
                 Task_Done();
-            }     
+                break;
+            }
         }break;
+
     case CHASIS_WZ_TEST:
         {
             RUN_ONCE(once_flag[1], chasis_set_velocity(0, 0, 3.14/6));
-            RUN_AFTER(once_flag[1], 5000, NULL);
+            RUN_AFTER(once_flag[1], 3000, NULL);
             if(RUN_ONCE_DONE(once_flag[1]))
             {
                 RUN_ONCE(once_flag[2], chasis_brake());
@@ -108,7 +109,7 @@ void while_task(void)
             if(RUN_ONCE_DONE(once_flag[2]))
             {
                 RUN_ONCE(once_flag[3], chasis_set_velocity(0, 0, -3.14/6));
-                RUN_AFTER(once_flag[3], 5000, chasis_brake());
+                RUN_AFTER(once_flag[3], 3000, chasis_brake());
             }
             if(RUN_ONCE_DONE(once_flag[3]))
             {
@@ -139,7 +140,7 @@ void while_task(void)
     case GIMBAL_MOVE_TEST:
         {
             static uint8_t step = 0;
-            /* 256细分, 51200脉冲/圈, 10°=1422脉冲 */
+            /* 256细分, 51200脉冲/�? 10°=1422脉冲 */
             switch (step) {
             case 0:
                 RUN_ONCE(once_flag[1], gimbal_enable());
@@ -194,14 +195,16 @@ inline void CAN_Rx_FIFO0_New_Message_Callback(DL_MCAN_RxBufElement rxMsg)
         {
 
         }break;
-    case CHASIS_X_TEST:
+        case CHASIS_X_TEST:
         {
 
         }break;
+
     case CHASIS_Y_TEST:
         {
 
         }break;
+
     case CHASIS_WZ_TEST:
         {
 
@@ -238,6 +241,24 @@ inline void one_hundured_ms_callback()
 {
     if (!init_ok)
         return;
+
+    /* ---- 超声波每 100ms 触发+读取 ---- */
+    static uint8_t us_cnt = 0;
+    if (++us_cnt >= 10) {  /* 100Hz / 10 = 10Hz = 100ms */
+        us_cnt = 0;
+        Ultrasonic_Trigger(0);
+        Ultrasonic_Trigger(1);
+    }
+    /* 读取上次结果（ISR 中已算好，非阻塞） */
+    if (Ultrasonic_IsDataReady(0)) {
+        uint32_t d0 = Ultrasonic_GetDistance_mm(0);  /* mm */
+        (void)d0;  /* TODO: 用 d0 */
+    }
+    if (Ultrasonic_IsDataReady(1)) {
+        uint32_t d1 = Ultrasonic_GetDistance_mm(1);  /* mm */
+        (void)d1;  /* TODO: 用 d1 */
+    }
+
     chasis_cal();
     JY901_Update();
     switch (system_mode)
@@ -246,14 +267,16 @@ inline void one_hundured_ms_callback()
         {
 
         }break;
-    case CHASIS_X_TEST:
+        case CHASIS_X_TEST:
         {
 
         }break;
+
     case CHASIS_Y_TEST:
         {
 
         }break;
+
     case CHASIS_WZ_TEST:
         {
 
@@ -297,14 +320,6 @@ inline void ms_callback()
     switch (system_mode)
     {
     case GIMBAL_SET_ZERO:
-        {
-
-        }break;
-    case CHASIS_X_TEST:
-        {
-
-        }break;
-    case CHASIS_Y_TEST:
         {
 
         }break;
@@ -352,9 +367,9 @@ void chasis_move_done_callback()
         {
 
         }break;
-    case CHASIS_X_TEST:
+        case CHASIS_X_TEST:
         {
-
+            
         }break;
     case CHASIS_Y_TEST:
         {
@@ -400,14 +415,16 @@ void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
         {
 
         }break;
-    case CHASIS_X_TEST:
+        case CHASIS_X_TEST:
         {
 
         }break;
+
     case CHASIS_Y_TEST:
         {
 
         }break;
+
     case CHASIS_WZ_TEST:
         {
 
@@ -467,7 +484,7 @@ void UART1_Rx_DMA_ToIdle_Callback(uint16_t size)
 
 void Task_Cleanup(void)
 {
-    for (uint8_t i = 0; i < 4; i++) {
+    for (uint8_t i = 0; i < sizeof(once_flag) / sizeof(once_flag[0]); i++) {
         once_flag[i] = (once_ctx_t){0};
     }
 }

@@ -20,6 +20,8 @@ C_SRCS += \
 ../User/bsp/Src/gimbal.c \
 ../User/bsp/Src/pid.c \
 ../User/bsp/Src/task_scheduler.c \
+../User/bsp/Src/timer.c \
+../User/bsp/Src/ultrasonic.c \
 ../User/bsp/Src/wit_c_sdk.c 
 
 C_DEPS += \
@@ -37,6 +39,8 @@ C_DEPS += \
 ./User/bsp/Src/gimbal.d \
 ./User/bsp/Src/pid.d \
 ./User/bsp/Src/task_scheduler.d \
+./User/bsp/Src/timer.d \
+./User/bsp/Src/ultrasonic.d \
 ./User/bsp/Src/wit_c_sdk.d 
 
 OBJS += \
@@ -54,6 +58,8 @@ OBJS += \
 ./User/bsp/Src/gimbal.o \
 ./User/bsp/Src/pid.o \
 ./User/bsp/Src/task_scheduler.o \
+./User/bsp/Src/timer.o \
+./User/bsp/Src/ultrasonic.o \
 ./User/bsp/Src/wit_c_sdk.o 
 
 OBJS__QUOTED += \
@@ -71,6 +77,8 @@ OBJS__QUOTED += \
 "User\bsp\Src\gimbal.o" \
 "User\bsp\Src\pid.o" \
 "User\bsp\Src\task_scheduler.o" \
+"User\bsp\Src\timer.o" \
+"User\bsp\Src\ultrasonic.o" \
 "User\bsp\Src\wit_c_sdk.o" 
 
 C_DEPS__QUOTED += \
@@ -88,6 +96,8 @@ C_DEPS__QUOTED += \
 "User\bsp\Src\gimbal.d" \
 "User\bsp\Src\pid.d" \
 "User\bsp\Src\task_scheduler.d" \
+"User\bsp\Src\timer.d" \
+"User\bsp\Src\ultrasonic.d" \
 "User\bsp\Src\wit_c_sdk.d" 
 
 C_SRCS__QUOTED += \
@@ -105,6 +115,8 @@ C_SRCS__QUOTED += \
 "../User/bsp/Src/gimbal.c" \
 "../User/bsp/Src/pid.c" \
 "../User/bsp/Src/task_scheduler.c" \
+"../User/bsp/Src/timer.c" \
+"../User/bsp/Src/ultrasonic.c" \
 "../User/bsp/Src/wit_c_sdk.c" 
 
 

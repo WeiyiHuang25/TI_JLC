@@ -162,6 +162,14 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 
 
 
+/* Defines for US_TIMER */
+#define US_TIMER_INST                                                   (TIMG12)
+#define US_TIMER_INST_IRQHandler                               TIMG12_IRQHandler
+#define US_TIMER_INST_INT_IRQN                                 (TIMG12_INT_IRQn)
+#define US_TIMER_INST_LOAD_VALUE                                            (0U)
+
+
+
 
 /* Defines for I2C_OLED */
 #define I2C_OLED_INST                                                       I2C1
@@ -245,12 +253,30 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define KEY_A18_IOMUX                                            (IOMUX_PINCM40)
 /* Defines for B21: GPIOB.21 with pinCMx 49 on package pin 20 */
 #define KEY_B21_PORT                                                     (GPIOB)
-// pins affected by this interrupt request:["B21"]
-#define KEY_GPIOB_INT_IRQN                                      (GPIOB_INT_IRQn)
-#define KEY_GPIOB_INT_IIDX                      (DL_INTERRUPT_GROUP1_IIDX_GPIOB)
+// groups represented: ["ULTRASONIC","KEY"]
+// pins affected: ["ULTRASONIC_0","ULTRASONIC_1","B21"]
+#define GPIO_MULTIPLE_GPIOB_INT_IRQN                            (GPIOB_INT_IRQn)
+#define GPIO_MULTIPLE_GPIOB_INT_IIDX            (DL_INTERRUPT_GROUP1_IIDX_GPIOB)
 #define KEY_B21_IIDX                                        (DL_GPIO_IIDX_DIO21)
 #define KEY_B21_PIN                                             (DL_GPIO_PIN_21)
 #define KEY_B21_IOMUX                                            (IOMUX_PINCM49)
+/* Port definition for Pin Group ULTRASONIC */
+#define ULTRASONIC_PORT                                                  (GPIOB)
+
+/* Defines for ULTRASONIC_0: GPIOB.13 with pinCMx 30 on package pin 1 */
+#define ULTRASONIC_ULTRASONIC_0_IIDX                        (DL_GPIO_IIDX_DIO13)
+#define ULTRASONIC_ULTRASONIC_0_PIN                             (DL_GPIO_PIN_13)
+#define ULTRASONIC_ULTRASONIC_0_IOMUX                            (IOMUX_PINCM30)
+/* Defines for ULTRASONIC_1: GPIOB.14 with pinCMx 31 on package pin 2 */
+#define ULTRASONIC_ULTRASONIC_1_IIDX                        (DL_GPIO_IIDX_DIO14)
+#define ULTRASONIC_ULTRASONIC_1_PIN                             (DL_GPIO_PIN_14)
+#define ULTRASONIC_ULTRASONIC_1_IOMUX                            (IOMUX_PINCM31)
+/* Defines for TRIG_0: GPIOB.15 with pinCMx 32 on package pin 3 */
+#define ULTRASONIC_TRIG_0_PIN                                   (DL_GPIO_PIN_15)
+#define ULTRASONIC_TRIG_0_IOMUX                                  (IOMUX_PINCM32)
+/* Defines for TRIG_1: GPIOB.16 with pinCMx 33 on package pin 4 */
+#define ULTRASONIC_TRIG_1_PIN                                   (DL_GPIO_PIN_16)
+#define ULTRASONIC_TRIG_1_IOMUX                                  (IOMUX_PINCM33)
 
 
 
@@ -301,6 +327,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 void SYSCFG_DL_FRONT_OUT_init(void);
 void SYSCFG_DL_RL_OUT_init(void);
 void SYSCFG_DL_RR_OUT_init(void);
+void SYSCFG_DL_US_TIMER_init(void);
 void SYSCFG_DL_I2C_OLED_init(void);
 void SYSCFG_DL_UART_0_init(void);
 void SYSCFG_DL_UART_1_init(void);

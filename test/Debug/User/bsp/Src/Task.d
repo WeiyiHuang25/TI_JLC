@@ -100,7 +100,8 @@ User/bsp/Src/Task.o: ../User/bsp/Src/Task.c \
  D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_UART1.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/wit_c_sdk.h \
  D:/rmLearning/TI/test/test/User/bsp/Inc/REG.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/JY901.h
+ D:/rmLearning/TI/test/test/User/bsp/Inc/JY901.h \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/ultrasonic.h
 D:/rmLearning/TI/test/test/User/bsp/Inc/Task.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_Driver.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/ZDT_CAN.h:
@@ -201,3 +202,4 @@ D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_UART1.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/wit_c_sdk.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/REG.h:
 D:/rmLearning/TI/test/test/User/bsp/Inc/JY901.h:
+D:/rmLearning/TI/test/test/User/bsp/Inc/ultrasonic.h:

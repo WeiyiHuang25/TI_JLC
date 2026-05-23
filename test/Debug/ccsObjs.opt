@@ -15,6 +15,8 @@
 "./User/bsp/Src/gimbal.o"
 "./User/bsp/Src/pid.o"
 "./User/bsp/Src/task_scheduler.o"
+"./User/bsp/Src/timer.o"
+"./User/bsp/Src/ultrasonic.o"
 "./User/bsp/Src/wit_c_sdk.o"
 -l"./device_linker.cmd"
 -ldevice.cmd.genlibs

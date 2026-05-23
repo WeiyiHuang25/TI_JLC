@@ -1,7 +1,7 @@
 # FIXED
 
-User/bsp/Src/bsp_key.o: ../User/bsp/Src/bsp_key.c \
- D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_key.h \
+User/bsp/Src/timer.o: ../User/bsp/Src/timer.c \
+ D:/rmLearning/TI/test/test/User/bsp/Inc/timer.h \
  ti_msp_dl_config.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/msp/msp.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/DeviceFamily.h \
@@ -84,9 +84,8 @@ User/bsp/Src/bsp_key.o: ../User/bsp/Src/bsp_key.c \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_vref.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_wwdt.h \
  E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_interrupt.h \
- E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_systick.h \
- D:/rmLearning/TI/test/test/User/bsp/Inc/ultrasonic.h
-D:/rmLearning/TI/test/test/User/bsp/Inc/bsp_key.h:
+ E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_systick.h
+D:/rmLearning/TI/test/test/User/bsp/Inc/timer.h:
 ti_msp_dl_config.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/msp/msp.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/devices/DeviceFamily.h:
@@ -170,4 +169,3 @@ E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_vref.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/dl_wwdt.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_interrupt.h:
 E:/TI/CCS/mspm0_sdk_2_10_00_04/source/ti/driverlib/m0p/dl_systick.h:
-D:/rmLearning/TI/test/test/User/bsp/Inc/ultrasonic.h:

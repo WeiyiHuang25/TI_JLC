@@ -31,6 +31,19 @@
 #define CHASIS_RR_POS_SCALE  1.0f
 #define CHASIS_RR_NEG_SCALE  1.0f
 
+/* =========================================================================
+ * 运动方向级 — 各轮比例修正（FL, FR, RL, RR 顺序）
+ *   FWD  = 前进(vx>0)  BWD  = 后退(vx<0)
+ *   LEFT = 左移(vy>0)  RIGHT= 右移(vy<0)
+ * 优先级: 先应用 POS/NEG_SCALE, 再乘此系数
+ * 调法: 某方向偏哪边，就降那侧电机的值
+ * ========================================================================= */
+ //                        FL    FR    RL    RR
+#define MEC_FWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 前进 */
+#define MEC_BWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 后退 */
+#define MEC_LEFT_SCALE  { 1.0f, 1.12f, 1.0f, 1.0f }   /* 左移 */
+#define MEC_RIGHT_SCALE { 1.0f, 1.0f, 1.0f, 1.0f }   /* 右移 */
+
 
 // #define FL_PID_KP 1.0f
 // #define FL_PID_KI 0.01f
