@@ -243,7 +243,8 @@ typedef struct {
     bool     active;
     float    vx_s, vy_s, wz_s;    /* 起始速度 */
     float    vx_t, vy_t, wz_t;    /* 目标速度 */
-    float    dv;                   /* 每 100ms 速度增量 */
+    float    dv_accel;             /* 加速段每 tick 速度增量 */
+    float    dv_decel;             /* 减速段每 tick 速度减量 */
     uint32_t accel_ticks;          /* 加速段 tick 数 */
     uint32_t cruise_ticks;         /* 匀速段 tick 数 */
     uint32_t decel_ticks;          /* 减速段 tick 数 */
@@ -253,12 +254,14 @@ typedef struct {
 static trapezoid_t trap;
 bool chasis_trapezoid_done = true;
 
-void chasis_trapezoid_move(float vx, float vy, float wz, float accel, uint32_t time_ms)
+void chasis_trapezoid_move(float vx, float vy, float wz, float accel, float decel, uint32_t time_ms)
 {
     /*
      * chasis_cal() 在 one_hundured_ms_callback() 中以 100Hz 调用，
      * trap.tick 每 10ms 自增 1 次，因此 1 tick = 10ms。
-     * total_ticks = time_ms / 10, adv = accel * 0.01 (每 tick 速度变化量)
+     * total_ticks = time_ms / 10
+     * dv_accel = accel * 0.01 (每 tick 加速量)
+     * dv_decel = decel * 0.01 (每 tick 减速量)
      */
     uint32_t total_ticks = time_ms / 10;
     if (total_ticks < 2) total_ticks = 2;
@@ -272,9 +275,9 @@ void chasis_trapezoid_move(float vx, float vy, float wz, float accel, uint32_t t
     trap.wz_t = wz;
     trap.tick = 0;
 
-    /* 计算各轴所需加减速 tick 数，取最大 */
-    float adv = accel * 0.01f;       /* 每 tick (10ms) 速度变化量, chasis_cal @100Hz */
-    uint32_t need_accel = 0, need_decel = 0;
+    /* 加速段：计算各轴所需 tick 数，取最大 */
+    float adv_accel = accel * 0.01f;       /* 每 tick (10ms) 加速变化量 */
+    uint32_t need_accel = 0;
 
     float dvx_a = (vx - trap.vx_s > 0) ? (vx - trap.vx_s) : (trap.vx_s - vx);
     float dvy_a = (vy - trap.vy_s > 0) ? (vy - trap.vy_s) : (trap.vy_s - vy);
@@ -282,7 +285,11 @@ void chasis_trapezoid_move(float vx, float vy, float wz, float accel, uint32_t t
     float dv_max_a = dvx_a;
     if (dvy_a > dv_max_a) dv_max_a = dvy_a;
     if (dwz_a > dv_max_a) dv_max_a = dwz_a;
-    if (dv_max_a > 0.0f) need_accel = (uint32_t)(dv_max_a / adv) + 1;
+    if (dv_max_a > 0.0f) need_accel = (uint32_t)(dv_max_a / adv_accel) + 1;
+
+    /* 减速段：计算各轴所需 tick 数，取最大 */
+    float adv_decel = decel * 0.01f;       /* 每 tick (10ms) 减速变化量 */
+    uint32_t need_decel = 0;
 
     float dvx_d = (vx > 0) ? vx : -vx;
     float dvy_d = (vy > 0) ? vy : -vy;
@@ -290,7 +297,7 @@ void chasis_trapezoid_move(float vx, float vy, float wz, float accel, uint32_t t
     float dv_max_d = dvx_d;
     if (dvy_d > dv_max_d) dv_max_d = dvy_d;
     if (dwz_d > dv_max_d) dv_max_d = dwz_d;
-    if (dv_max_d > 0.0f) need_decel = (uint32_t)(dv_max_d / adv) + 1;
+    if (dv_max_d > 0.0f) need_decel = (uint32_t)(dv_max_d / adv_decel) + 1;
 
     /* 梯形 → 三角判断 */
     if (need_accel + need_decel > total_ticks) {
@@ -303,7 +310,8 @@ void chasis_trapezoid_move(float vx, float vy, float wz, float accel, uint32_t t
     }
     trap.accel_ticks = need_accel;
     trap.decel_ticks = need_decel;
-    trap.dv = adv;
+    trap.dv_accel    = adv_accel;
+    trap.dv_decel    = adv_decel;
     trap.active = true;
     chasis_trapezoid_done = false;
 }

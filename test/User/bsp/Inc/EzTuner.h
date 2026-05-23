@@ -41,7 +41,7 @@
  //                        FL    FR    RL    RR
 #define MEC_FWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 前进 */
 #define MEC_BWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 后退 */
-#define MEC_LEFT_SCALE  { 1.0f, 1.12f, 1.0f, 1.0f }   /* 左移 */
+#define MEC_LEFT_SCALE  { 1.0f, 1.1f, 1.0f, 1.0f }   /* 左移 */
 #define MEC_RIGHT_SCALE { 1.0f, 1.0f, 1.0f, 1.0f }   /* 右移 */
 
 

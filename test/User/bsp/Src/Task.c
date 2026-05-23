@@ -64,11 +64,11 @@ void while_task(void)
             static uint8_t step = 0;
             switch (step) {
             case 0:
-                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0.5, 0, 0, 0.5, 4000));
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0.5, 0, 0, 0.7, 0.3, 4000));
                 if (chasis_trapezoid_done) step = 1;
                 break;
             case 1:
-                RUN_ONCE(once_flag[2], chasis_trapezoid_move(-0.5, 0, 0, 0.5, 4000));
+                RUN_ONCE(once_flag[2], chasis_trapezoid_move(-0.5, 0, 0, 0.7, 0.3, 4000));
                 if (chasis_trapezoid_done) step = 2;
                 break;
             case 2:
@@ -83,11 +83,11 @@ void while_task(void)
             static uint8_t step = 0;
             switch (step) {
             case 0:
-                RUN_ONCE(once_flag[3], chasis_trapezoid_move(0, 0.5, 0, 0.5, 4000));
+                RUN_ONCE(once_flag[3], chasis_trapezoid_move(0, 0.5, 0, 0.7, 0.3, 4000));
                 if (chasis_trapezoid_done) step = 1;
                 break;
             case 1:
-                RUN_ONCE(once_flag[4], chasis_trapezoid_move(0, -0.5, 0, 0.5, 4000));
+                RUN_ONCE(once_flag[4], chasis_trapezoid_move(0, -0.5, 0, 0.7, 0.3, 4000));
                 if (chasis_trapezoid_done) step = 2;
                 break;
             case 2:
@@ -99,7 +99,7 @@ void while_task(void)
 
     case CHASIS_WZ_TEST:
         {
-            RUN_ONCE(once_flag[1], chasis_set_velocity(0, 0, 3.14/6));
+            RUN_ONCE(once_flag[1], chasis_set_velocity(0, 0, 3.14));
             RUN_AFTER(once_flag[1], 3000, NULL);
             if(RUN_ONCE_DONE(once_flag[1]))
             {
@@ -108,7 +108,7 @@ void while_task(void)
             }
             if(RUN_ONCE_DONE(once_flag[2]))
             {
-                RUN_ONCE(once_flag[3], chasis_set_velocity(0, 0, -3.14/6));
+                RUN_ONCE(once_flag[3], chasis_set_velocity(0, 0, -3.14));
                 RUN_AFTER(once_flag[3], 3000, chasis_brake());
             }
             if(RUN_ONCE_DONE(once_flag[3]))

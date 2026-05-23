@@ -57,7 +57,7 @@ void chasis_set_velocity(float vx, float vy, float wz);
 void chasis_stop(void);
 void chasis_brake(void);
 void chasis_linear_brake(uint32_t time_ms);
-void chasis_trapezoid_move(float vx, float vy, float wz, float accel, uint32_t time_ms);
+void chasis_trapezoid_move(float vx, float vy, float wz, float accel, float decel, uint32_t time_ms);
 
 
 
