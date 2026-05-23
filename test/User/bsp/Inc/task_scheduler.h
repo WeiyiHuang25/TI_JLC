@@ -6,7 +6,7 @@
 /* OLED 128x64, 16px 字体, 每页 4 行 */
 #define MENU_PAGE_SIZE   4
 #define MENU_MAX_DEPTH   6
-#define MENU_COUNTDOWN_S 5   /* 任务启动倒计时(秒) */
+#define MENU_COUNTDOWN_S 2   /* 任务启动倒计时(秒) */
 
 typedef struct menu_item {
     const char          *name;        /* 显示名称 */

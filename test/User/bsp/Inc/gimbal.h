@@ -18,3 +18,5 @@
 void gimbal_set_zero(void);
 void gimbal_disable(void);
 void gimbal_enable(void);
+void gimbal_return_zero(void);
+void gimbal_update(uint8_t pitch_dir, uint16_t pitch_vel, uint32_t pitch_clk, uint8_t yaw_dir, uint16_t yaw_vel, uint32_t yaw_clk);

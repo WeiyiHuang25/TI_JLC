@@ -17,7 +17,39 @@
 #define TASK3                       3
 #define TASK4                       4
 #define GIMBAL_SET_ZERO             5
+#define CHASIS_X_TEST               6
+#define CHASIS_Y_TEST               7
+#define CHASIS_WZ_TEST              8
+#define GIMBAL_RETURN_ZERO          9
+#define GIMBAL_ENABLE               10
+#define GIMBAL_DISABLE              11
+#define GIMBAL_TEST                 12
+
+/* ============================ 时序执行上下文 ============================ */
+typedef struct {
+    uint8_t  flag;      /* RUN_ONCE 是否已触发         */
+    uint8_t  after_done;/* RUN_AFTER 是否已触发        */
+    uint32_t tick;      /* RUN_ONCE 触发时刻(g_tick)   */
+} once_ctx_t;
+
+/* 执行 fn 一次（fn 可以是函数名、有参调用、或任意表达式） */
+#define RUN_ONCE(ctx, fn) \
+    do { if (!(ctx).flag) { (ctx).flag = 1; (ctx).tick = g_tick; (void)(fn); } } while(0)
+
+/* RUN_ONCE 触发后 delay_ms 毫秒执行 fn（仅一次，fn 可为 NULL，完成后自动回收） */
+#define RUN_AFTER(ctx, delay_ms, fn) \
+    do { \
+        if ((ctx).flag && !(ctx).after_done \
+            && (g_tick - (ctx).tick >= (uint32_t)(delay_ms))) { \
+            (ctx).after_done = 1; \
+            (void)(fn); \
+        } \
+    } while(0)
+
+/* 查询 RUN_AFTER 是否已完成（延时到达，上下文已回收） */
+#define RUN_ONCE_DONE(ctx)  ((ctx).after_done)
 
 
 void User_Init(void);
+void Task_Cleanup(void);
 

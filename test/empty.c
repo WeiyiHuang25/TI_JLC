@@ -59,15 +59,17 @@ int mspm0_delay_ms(unsigned long num_ms);
 // float speed_fl = 0.0f;
 // float speed_rl = 0.0f;
 // float speed_rr = 0.0f;
-// volatile uint32_t g_tick = 0;
-// volatile uint8_t  g_flag_100hz = 0;
+
 // uint16_t test_count;
 
 // test end
-
+extern void while_task(void);
 bool init_ok = false;
 void one_hundured_ms_callback();
 void ms_callback();
+
+volatile uint32_t g_tick = 0;
+volatile uint8_t  g_flag_100hz = 0;
 
 int main(void)
 {
@@ -79,7 +81,7 @@ int main(void)
     User_Init();
     // chasis_set_velocity(0, 0, 3.14/10);
     // chasis_set_velocity(-0.5, 0, 0);
-    test_count = g_tick;
+    // test_count = g_tick;
     DL_GPIO_setPins(LED_PORT, LED_LED_PIN_PIN);
     // motor_test_direction_start();
     gimbal_disable(); // 防止失控，上电停止
@@ -112,27 +114,8 @@ int main(void)
             g_flag_100hz = 0;
             one_hundured_ms_callback();
         }
-            switch (system_mode)
-        {
-        case GIMBAL_SET_ZERO:
-            {
+        while_task();
 
-            }break;
-        case TASK2:
-            {
-
-            }break;
-        case TASK3:
-            {
-
-            }break;
-        case TASK4:
-            {
-
-            }break;
-        default:
-            break;
-        }
     }
 }
 

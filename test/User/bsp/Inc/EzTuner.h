@@ -13,7 +13,7 @@
 #define OPENLOOP_FR_RATIO       1.0f     /* FR 前右轮 PWM 比例 */
 #define OPENLOOP_RL_RATIO       1.0f     /* RL 后左轮 PWM 比例 */
 #define OPENLOOP_RR_RATIO       1.0f     /* RR 后右轮 PWM 比例 */
-#define OPENLOOP_MIN_DUTY       500      /* 最小启动占空比 (克服静摩擦) */
+#define OPENLOOP_MIN_DUTY       300      /* 最小启动占空比 (克服静摩擦) */
 
 
 // #define FL_PID_KP 1.0f

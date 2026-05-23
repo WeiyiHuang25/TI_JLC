@@ -18,3 +18,15 @@ void gimbal_enable(void)
     Emm_V5_En_Control(YAW_MOTOR, true, false);   
 }
 
+void gimbal_return_zero(void)
+{
+    Emm_V5_Origin_Trigger_Return(PITCH_MOTOR, 0, false);
+    Emm_V5_Origin_Trigger_Return(YAW_MOTOR, 0, false);
+}
+
+void gimbal_update(uint8_t pitch_dir, uint16_t pitch_vel, uint32_t pitch_clk, uint8_t yaw_dir, uint16_t yaw_vel, uint32_t yaw_clk)
+{
+    Emm_V5_Pos_Control(PITCH_MOTOR, pitch_dir, pitch_vel, 0, pitch_clk, false, false);
+    Emm_V5_Pos_Control(PITCH_MOTOR, yaw_dir, yaw_vel, 0, yaw_clk, false, false);
+}
+

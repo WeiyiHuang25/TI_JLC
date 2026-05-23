@@ -7,31 +7,61 @@ extern uint32_t system_mode;
 /* ============================ 菜单树 ============================ */
 /* 根据你的任务自定义以下内容 */
 
-static menu_item_t menu_chasis_items[];
-static menu_item_t menu_gimbal_items[];
+// static menu_item_t menu_chasis_items[];
+// static menu_item_t menu_gimbal_items[];
 
-/* ---- 底盘子菜单 ---- */
-static menu_item_t menu_chasis_items[] = {
-    {"forward",       0, NULL, TASK1},
-    {"backward",       0, NULL, TASK2},
-    {"stop",       0, NULL, TASK_INIT},
+// /* ---- 底盘子菜单 ---- */
+// static menu_item_t menu_chasis_items[] = {
+//     {"forward",       0, NULL, TASK1},
+//     {"backward",       0, NULL, TASK2},
+//     {"stop",       0, NULL, TASK_INIT},
+//     {"return",       0, NULL, MENU_VAL_BACK},
+// };
+// #define CHASIS_CNT  (sizeof(menu_chasis_items) / sizeof(menu_item_t))
+
+// /* ---- 云台子菜单 ---- */
+// static menu_item_t menu_gimbal_items[] = {
+//     {"pitch",       0, NULL, TASK3},
+//     {"row",       0, NULL, TASK4},
+//     {"row",       0, NULL, TASK4},
+//     {"return",       0, NULL, MENU_VAL_BACK},
+// };
+// #define GIMBAL_CNT  (sizeof(menu_gimbal_items) / sizeof(menu_item_t))
+
+// /* ---- 根菜单项数组 ---- */
+// static menu_item_t menu_root_items[] = {
+//     {"chasis",   CHASIS_CNT, menu_chasis_items, 0},
+//     {"gimbal",   GIMBAL_CNT, menu_gimbal_items, 0},
+// };
+// #define ROOT_CNT  (sizeof(menu_root_items) / sizeof(menu_item_t))
+
+// /* ---- 根菜单容器 ---- */
+// static menu_item_t menu_root = {
+//     "", ROOT_CNT, menu_root_items, 0
+// };
+
+
+static menu_item_t menu_debug_items[];
+
+
+
+/* ---- Debug子菜单 ---- */
+static menu_item_t menu_debug_items[] = {
+    {"Gim set 0",       0, NULL, GIMBAL_SET_ZERO},
+    {"Gim en",       0, NULL, GIMBAL_ENABLE},
+    {"Gim dis",       0, NULL, GIMBAL_DISABLE},
+    {"Gim test",       0, NULL, GIMBAL_TEST},
+    {"Gim ret 0",       0, NULL, GIMBAL_RETURN_ZERO},
+    {"Cha x test",       0, NULL, CHASIS_X_TEST},
+    {"Cha y test",       0, NULL, CHASIS_Y_TEST},
+    {"Cha w test",       0, NULL, CHASIS_WZ_TEST},
     {"return",       0, NULL, MENU_VAL_BACK},
 };
-#define CHASIS_CNT  (sizeof(menu_chasis_items) / sizeof(menu_item_t))
-
-/* ---- 云台子菜单 ---- */
-static menu_item_t menu_gimbal_items[] = {
-    {"pitch",       0, NULL, TASK3},
-    {"row",       0, NULL, TASK4},
-    {"row",       0, NULL, TASK4},
-    {"return",       0, NULL, MENU_VAL_BACK},
-};
-#define GIMBAL_CNT  (sizeof(menu_gimbal_items) / sizeof(menu_item_t))
+#define DEBUG_CNT  (sizeof(menu_debug_items) / sizeof(menu_item_t))
 
 /* ---- 根菜单项数组 ---- */
 static menu_item_t menu_root_items[] = {
-    {"chasis",   CHASIS_CNT, menu_chasis_items, 0},
-    {"gimbal",   GIMBAL_CNT, menu_gimbal_items, 0},
+    {"Debug",   DEBUG_CNT, menu_debug_items, 0},
 };
 #define ROOT_CNT  (sizeof(menu_root_items) / sizeof(menu_item_t))
 
@@ -39,6 +69,17 @@ static menu_item_t menu_root_items[] = {
 static menu_item_t menu_root = {
     "", ROOT_CNT, menu_root_items, 0
 };
+
+
+
+
+
+
+
+
+
+
+
 
 /* ============================ 状态 ============================ */
 
@@ -172,5 +213,6 @@ void Menu_Run(void)
 void Task_Done(void)
 {
     system_mode = TASK_INIT;
+    Task_Cleanup();
     Menu_Init();
 }
