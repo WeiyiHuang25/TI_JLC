@@ -70,6 +70,7 @@
 #define Q2_TASK1_BRAKE_ACCEL    0.7f      // 刹车梯形加速度
 #define Q2_TASK1_BRAKE_DECEL    0.3f      // 刹车梯形减速度
 #define Q2_TASK1_BRAKE_TIME      200U     // 刹车时间
+#define Q2_TASK1_HOLD_TIME       300U     // 刹车后抱死时间
 
 /* Q1: X→Y→Wz 三步任务，每步时间独立可调 */
 #define Q1_TASK1_TIME_X           2700U
