@@ -301,16 +301,50 @@ void while_task(void)
         }break;
     case Q2_TASK1:
         {
-            RUN_ONCE(once_flag[9], gimbal_return_zero());
-            RUN_AFTER(once_flag[9], 1, NULL);
-            uint8_t q2_task1_start_buffer[2] = {Q2_TASK1, 0xFF};
-            RUN_ONCE(once_flag[0], uart_send(q2_task1_start_buffer, sizeof(q2_task1_start_buffer)));
-            RUN_AFTER(once_flag[0], 1, NULL);
-            if (RUN_ONCE_DONE(once_flag[0]))
+            static uint8_t step = 0;
+            switch(step)
             {
-                uint8_t q2_task1_to_barrier_buffer[2] = {0x01, 0x1B};
-                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0.5, 0, 0, 0.7, 0.3, Q2_TASK1_TIME_0));
-                RUN_AFTER(once_flag[1], Q2_TASK1_TIME_0, uart1_send(q2_task1_to_barrier_buffer, sizeof(q2_task1_to_barrier_buffer)));
+                case 0:{
+                    gimbal_enable();
+                    gimbal_return_zero();
+                    step = 1;
+                    uint8_t q2_task1_start_buffer[2] = {0x12, 0xFF};
+                    uart_send(q2_task1_start_buffer, sizeof(q2_task1_start_buffer));
+                }break;
+                case 1:{
+                    uint8_t q2_task1_to_barrier_buffer[2] = {0x12, 0x1B};
+                    RUN_ONCE(once_flag[1], chasis_trapezoid_move(Q2_TASK1_VELOCITY_0, 0, 0, Q2_TASK1_ACCEL_0, Q2_TASK1_DECEL_0, Q2_TASK1_TIME_0));
+                    RUN_AFTER(once_flag[1], Q2_TASK1_TIME_0, uart_send(q2_task1_to_barrier_buffer, sizeof(q2_task1_to_barrier_buffer)));
+                    if(RUN_ONCE_DONE(once_flag[1])){
+                        step = 2;
+                    }
+                }break;
+                case 2:{
+                    /* 无障分支: flag[2]左移→flag[4]刹车→flag[5]直行 */
+                    if (once_flag[2].flag) {
+                        RUN_AFTER(once_flag[2], Q2_TASK1_TIME_1, NULL);
+                        if (RUN_ONCE_DONE(once_flag[2])) {
+                            RUN_ONCE(once_flag[4], chasis_trapezoid_move(0, 0, 0, Q2_TASK1_BRAKE_ACCEL, Q2_TASK1_BRAKE_DECEL, Q2_TASK1_BRAKE_TIME));
+                            RUN_AFTER(once_flag[4], 10, NULL);
+                        }
+                    }
+                    if (RUN_ONCE_DONE(once_flag[4])) {
+                        RUN_ONCE(once_flag[5], chasis_trapezoid_move(
+                            Q2_TASK1_VELOCITY_3, 0, 0,
+                            Q2_TASK1_ACCEL_3, Q2_TASK1_DECEL_3, Q2_TASK1_TIME_3));
+                        RUN_AFTER(once_flag[5], Q2_TASK1_TIME_3, NULL);
+                    }
+                    /* 有障分支: flag[3]直行 */
+                    if (once_flag[3].flag) {
+                        RUN_AFTER(once_flag[3], Q2_TASK1_TIME_2, NULL);
+                    }
+                    /* 任一分支的最终移动完成 → 发到位 → 退出 */
+                    if (RUN_ONCE_DONE(once_flag[3]) || RUN_ONCE_DONE(once_flag[5])) {
+                        uint8_t done_buf[2] = {0x13, 0xFF};
+                        uart_send(done_buf, sizeof(done_buf));
+                        Task_Done();
+                    }
+                }break;
             }
         }break;
     case Q2_TASK2:
@@ -318,6 +352,8 @@ void while_task(void)
             uint8_t q2_task2_start_buffer[2] = {Q2_TASK2, 0xFF};
             RUN_ONCE(once_flag[0], uart_send(q2_task2_start_buffer, sizeof(q2_task2_start_buffer)));
             RUN_AFTER(once_flag[0], 1, NULL);
+            if (RUN_ONCE_DONE(once_flag[0]))
+                Task_Done();
         }break;
     case Q1_TASK1:
         {
@@ -817,18 +853,15 @@ void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
     {
         if (RUN_ONCE_DONE(once_flag[1]))
         {
-            if (uart_rx_buff[0] == Q2_TASK1)
+            if (uart_rx_buff[0] == 0x12)
             {
                 if (uart_rx_buff[1] == false)
                 {
-                    RUN_ONCE(once_flag[2], chasis_trapezoid_move(0, 0.5, 0, 0.7, 0.3, Q2_TASK1_TIME_1));
-                    RUN_AFTER(once_flag[2], 1, NULL);
+                    RUN_ONCE(once_flag[2], chasis_trapezoid_move(0, Q2_TASK1_VELOCITY_1, 0, Q2_TASK1_ACCEL_1, Q2_TASK1_DECEL_1, Q2_TASK1_TIME_1));
                 }
                 else
                 {
-                    chasis_brake();
-                    RUN_ONCE(once_flag[3], chasis_trapezoid_move(0.5, 0, 0, 0.7, 0.3, Q2_TASK1_TIME_2));
-                    RUN_AFTER(once_flag[3], Q2_TASK1_TIME_2,Task_Jump(Q2_TASK2));
+                    RUN_ONCE(once_flag[3], chasis_trapezoid_move(Q2_TASK1_VELOCITY_2, 0, 0, Q2_TASK1_ACCEL_2, Q2_TASK1_DECEL_2, Q2_TASK1_TIME_2));
                 }
             }
         }

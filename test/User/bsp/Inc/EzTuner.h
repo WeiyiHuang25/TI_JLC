@@ -46,10 +46,30 @@
 
 
 
-#define Q2_TASK1_VELOCITY       0.5f       //平移避障的时间
-#define Q2_TASK1_TIME_0           1000U   // 到障碍区前的时间  OK
-#define Q2_TASK1_TIME_1           3000U   // 向左平移的最长时间
-#define Q2_TASK1_TIME_2         1000U  //通过障碍区的时间
+/* Q2_TASK1: 三阶段独立参数 */
+#define Q2_TASK1_VELOCITY_0    0.5f       // 到障碍区: 速度
+#define Q2_TASK1_ACCEL_0       0.7f       // 到障碍区: 加速度
+#define Q2_TASK1_DECEL_0       0.3f       // 到障碍区: 减速度
+#define Q2_TASK1_TIME_0        1000U      // 到障碍区前的时间 OK
+
+#define Q2_TASK1_VELOCITY_1    0.2f       // 左移: 速度
+#define Q2_TASK1_ACCEL_1       0.7f       // 左移: 加速度
+#define Q2_TASK1_DECEL_1       0.3f       // 左移: 减速度
+#define Q2_TASK1_TIME_1        3000U      // 向左平移的最长时间
+
+#define Q2_TASK1_VELOCITY_2    0.5f       // 通过: 速度
+#define Q2_TASK1_ACCEL_2       0.7f       // 通过: 加速度
+#define Q2_TASK1_DECEL_2       0.3f       // 通过: 减速度
+#define Q2_TASK1_TIME_2        1000U      // 通过障碍区的时间
+
+#define Q2_TASK1_VELOCITY_3    0.5f       // 避障后直行: 速度
+#define Q2_TASK1_ACCEL_3       0.7f       // 避障后直行: 加速度
+#define Q2_TASK1_DECEL_3       0.3f       // 避障后直行: 减速度
+#define Q2_TASK1_TIME_3         500U      // 避障后直行时间
+
+#define Q2_TASK1_BRAKE_ACCEL    0.7f      // 刹车梯形加速度
+#define Q2_TASK1_BRAKE_DECEL    0.3f      // 刹车梯形减速度
+#define Q2_TASK1_BRAKE_TIME      200U     // 刹车时间
 
 /* Q1: X→Y→Wz 三步任务，每步时间独立可调 */
 #define Q1_TASK1_TIME_X           2700U
