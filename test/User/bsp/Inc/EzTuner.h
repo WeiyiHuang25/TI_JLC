@@ -44,33 +44,44 @@
 #define MEC_LEFT_SCALE  { 1.0f, 1.2f, 1.0f, 1.0f }   /* 左移 */
 #define MEC_RIGHT_SCALE { 1.0f, 1.0f, 1.0f, 1.0f }   /* 右移 */
 
+/* =========================================================================
+ * Q2 专用 — 各轮比例修正（FL, FR, RL, RR 顺序）
+ * ========================================================================= */
+ //                                FL    FR    RL    RR
+#define Q2_MEC_FWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 前进 */
+#define Q2_MEC_BWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 后退 */
+#define Q2_MEC_LEFT_SCALE  { 1.0f, 1.0f, 1.0f, 1.0f }   /* 左移 */
+#define Q2_MEC_RIGHT_SCALE { 1.0f, 1.0f, 1.0f, 1.0f }   /* 右移 */
 
 
-/* Q2_TASK1: 三阶段独立参数 */
-#define Q2_TASK1_VELOCITY_0    0.5f       // 到障碍区: 速度
-#define Q2_TASK1_ACCEL_0       0.7f       // 到障碍区: 加速度
-#define Q2_TASK1_DECEL_0       0.3f       // 到障碍区: 减速度
-#define Q2_TASK1_TIME_0        1000U      // 到障碍区前的时间 OK
 
-#define Q2_TASK1_VELOCITY_1    0.2f       // 左移: 速度
-#define Q2_TASK1_ACCEL_1       0.7f       // 左移: 加速度
-#define Q2_TASK1_DECEL_1       0.3f       // 左移: 减速度
-#define Q2_TASK1_TIME_1        3000U      // 向左平移的最长时间
+/* Q2_TASK1: 避障程序 — 各阶段运动时间与等待时间 */
+#define Q2_TASK1_FWD_VELOCITY    0.5f     // 前进阶段: 速度
+#define Q2_TASK1_FWD_ACCEL       0.7f     // 前进阶段: 加速度
+#define Q2_TASK1_FWD_DECEL       0.3f     // 前进阶段: 减速度
+#define Q2_TASK1_FWD_TIME        1000U    // 前进到障碍区前的时间(ms)
 
-#define Q2_TASK1_VELOCITY_2    0.5f       // 通过: 速度
-#define Q2_TASK1_ACCEL_2       0.7f       // 通过: 加速度
-#define Q2_TASK1_DECEL_2       0.3f       // 通过: 减速度
-#define Q2_TASK1_TIME_2        1000U      // 通过障碍区的时间
+#define Q2_TASK1_BRAKE_ACCEL     0.7f     // 刹车: 梯形加速度
+#define Q2_TASK1_BRAKE_DECEL     0.3f     // 刹车: 梯形减速度
+#define Q2_TASK1_BRAKE_TIME       200U    // 刹车时间(ms)
+#define Q2_TASK1_HOLD_TIME        500U    // 刹车后抱死等待时间(ms)
 
-#define Q2_TASK1_VELOCITY_3    0.5f       // 避障后直行: 速度
-#define Q2_TASK1_ACCEL_3       0.7f       // 避障后直行: 加速度
-#define Q2_TASK1_DECEL_3       0.3f       // 避障后直行: 减速度
-#define Q2_TASK1_TIME_3         500U      // 避障后直行时间
+#define Q2_TASK1_WAIT_GATE_TIME   300U    // 发标志后等待时间(ms), 防止UART中断立即触发
+#define Q2_TASK1_WAIT_HOST_TIME   200U    // 停止后等待上位机数据的时间(ms)
 
-#define Q2_TASK1_BRAKE_ACCEL    0.7f      // 刹车梯形加速度
-#define Q2_TASK1_BRAKE_DECEL    0.3f      // 刹车梯形减速度
-#define Q2_TASK1_BRAKE_TIME      200U     // 刹车时间
-#define Q2_TASK1_HOLD_TIME       300U     // 刹车后抱死时间
+#define Q2_TASK1_STOP1_ACCEL     0.7f     // 上位机true后: 梯形降速加速度
+#define Q2_TASK1_STOP1_DECEL     0.3f     // 上位机true后: 梯形降速减速度
+#define Q2_TASK1_STOP1_TIME       200U    // 上位机true后: 梯形降速时间(ms)
+
+#define Q2_TASK1_LEFT_VELOCITY   0.2f     // 左移扫描: 速度
+#define Q2_TASK1_LEFT_ACCEL      0.7f     // 左移扫描: 加速度
+#define Q2_TASK1_LEFT_DECEL      0.3f     // 左移扫描: 减速度
+#define Q2_TASK1_LEFT_MAX_TIME   5000U    // 左移扫描最大时间(ms), 超时则停止
+
+#define Q2_TASK1_PASS_VELOCITY   0.5f     // 通过阶段: 速度
+#define Q2_TASK1_PASS_ACCEL      0.7f     // 通过阶段: 加速度
+#define Q2_TASK1_PASS_DECEL      0.3f     // 通过阶段: 减速度
+#define Q2_TASK1_PASS_TIME       1000U    // 通过障碍区的时间(ms)
 
 /* Q1: X→Y→Wz 三步任务，每步时间独立可调 */
 #define Q1_TASK1_TIME_X           2700U

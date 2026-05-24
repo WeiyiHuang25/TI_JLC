@@ -29,9 +29,6 @@ volatile uint32_t g_us_pulse0 = 0;
 volatile uint32_t g_us_pulse1 = 0;
 
 uint32_t x_origin, y_origin;
-uint32_t g_q2_left_ms = 0;        /* Q2 避障左移实际时长(ms)，归位用 */
-volatile uint8_t g_q2_recheck = 0; /* 无障分支滑行中重检到障碍 → 抱死后重跑避障 */
-
 /* Q1 可调参数（初始值来自 EzTuner.h 宏） */
 q1_param_t g_q1_t1 = {
     Q1_TASK1_TIME_X, Q1_TASK1_TIME_Y, Q1_TASK1_TIME_WZ,
@@ -52,7 +49,7 @@ q1_param_t g_q1_t3 = {
 /* =========================================================================
  * 初始�?
  * ========================================================================= */
-static once_ctx_t once_flag[10];
+static once_ctx_t once_flag[15];
 
 void User_Init()
 {
@@ -150,7 +147,6 @@ static bool param_editor(q1_param_t *p, const char *title)
 
     return false;
 }
-
 void while_task(void)
 {
     switch (system_mode)
@@ -303,82 +299,139 @@ void while_task(void)
         }break;
     case Q2_TASK1:
         {
+            /*
+             * Q2_TASK1 避障程序:
+             *   云台归零→发标志→前进→刹车+抱死→发标志→等待→上位机决策
+             *   有障(false): 左移扫描→上位机true→减速刹车等待→再收数据→true则前行
+             *   无障(true):  直行通过→完成
+             */
             static uint8_t step = 0;
-            switch(step)
+            uint8_t barrier_buf[2] = {0x12, 0x1B};
+
+            /* Task_Cleanup 重置了 once_flag 但不会重置 step;
+             * 通过检测 once_flag[0] 是否清零来判断是否为新一次运行 */
+            if (!once_flag[0].flag) step = 0;
+
+            switch (step)
             {
-                case 0:{
-                    gimbal_enable();
-                    gimbal_return_zero();
-                    step = 1;
-                    uint8_t q2_task1_start_buffer[2] = {0x12, 0xFF};
-                    uart_send(q2_task1_start_buffer, sizeof(q2_task1_start_buffer));
-                }break;
-                case 1:{
-                    uint8_t q2_task1_to_barrier_buffer[2] = {0x12, 0x1B};
-                    RUN_ONCE(once_flag[1], chasis_trapezoid_move(Q2_TASK1_VELOCITY_0, 0, 0, Q2_TASK1_ACCEL_0, Q2_TASK1_DECEL_0, Q2_TASK1_TIME_0));
-                    RUN_AFTER(once_flag[1], Q2_TASK1_TIME_0, uart_send(q2_task1_to_barrier_buffer, sizeof(q2_task1_to_barrier_buffer)));
-                    if(RUN_ONCE_DONE(once_flag[1])){
-                        step = 2;
-                    }
-                }break;
-                case 2:{
-                    /* 无障分支: flag[2]左移→flag[4]刹车→flag[6]抱死→flag[5]直行 */
-                    if (once_flag[2].flag) {
-                        RUN_AFTER(once_flag[2], Q2_TASK1_TIME_1, NULL);
-                        if (RUN_ONCE_DONE(once_flag[2])) {
-                            g_q2_left_ms = Q2_TASK1_TIME_1;
-                            RUN_ONCE(once_flag[4], chasis_trapezoid_move(0, 0, 0, Q2_TASK1_BRAKE_ACCEL, Q2_TASK1_BRAKE_DECEL, Q2_TASK1_BRAKE_TIME));
-                            RUN_AFTER(once_flag[4], Q2_TASK1_BRAKE_TIME, NULL);
-                        }
-                    }
-                    if (RUN_ONCE_DONE(once_flag[4])) {
-                        RUN_ONCE(once_flag[6], chasis_trapezoid_move(0, 0, 0, 0.1f, 0.1f, Q2_TASK1_HOLD_TIME));
-                        RUN_AFTER(once_flag[6], Q2_TASK1_HOLD_TIME, NULL);
-                    }
-                    if (RUN_ONCE_DONE(once_flag[6])) {
-                        RUN_ONCE(once_flag[5], chasis_trapezoid_move(
-                            Q2_TASK1_VELOCITY_3, 0, 0,
-                            Q2_TASK1_ACCEL_3, Q2_TASK1_DECEL_3, Q2_TASK1_TIME_3));
-                        RUN_AFTER(once_flag[5], Q2_TASK1_TIME_3, NULL);
-                    }
-                    /* 有障分支: flag[3]直行→flag[8]刹车 */
-                    if (once_flag[3].flag) {
-                        RUN_AFTER(once_flag[3], Q2_TASK1_TIME_2, NULL);
-                        if (RUN_ONCE_DONE(once_flag[3])) {
-                            RUN_ONCE(once_flag[8], chasis_trapezoid_move(0, 0, 0, Q2_TASK1_BRAKE_ACCEL, Q2_TASK1_BRAKE_DECEL, Q2_TASK1_BRAKE_TIME));
-                            RUN_AFTER(once_flag[8], Q2_TASK1_BRAKE_TIME, NULL);
-                        }
-                    }
-                    /* 两分支直行完成后 → 抱死 */
-                    if (RUN_ONCE_DONE(once_flag[5]) || RUN_ONCE_DONE(once_flag[8])) {
-                        RUN_ONCE(once_flag[7], chasis_trapezoid_move(0, 0, 0, 0.1f, 0.1f, Q2_TASK1_HOLD_TIME));
-                        RUN_AFTER(once_flag[7], Q2_TASK1_HOLD_TIME, NULL);
-                    }
-                    /* 抱死完成 */
-                    if (RUN_ONCE_DONE(once_flag[7])) {
-                        if (g_q2_recheck) {
-                            /* 无障→有障重检：重启避障左移 */
-                            g_q2_recheck = 0;
-                            once_flag[3] = (once_ctx_t){0};
-                            once_flag[8] = (once_ctx_t){0};
-                            once_flag[7] = (once_ctx_t){0};
-                            RUN_ONCE(once_flag[2], chasis_trapezoid_move(0, Q2_TASK1_VELOCITY_1, 0, Q2_TASK1_ACCEL_1, Q2_TASK1_DECEL_1, Q2_TASK1_TIME_1));
-                        } else {
-                            uint8_t done_buf[2] = {0x13, 0xFF};
-                            uart_send(done_buf, sizeof(done_buf));
-                            Task_Done();
-                        }
-                    }
-                }break;
+            /* ── Step 0: 云台归零 + 发送启动标志 ── */
+            case 0:{
+                gimbal_enable();
+                gimbal_return_zero();
+                uint8_t start_buf[2] = {0x12, 0xFF};
+                RUN_ONCE(once_flag[0], uart_send(start_buf, sizeof(start_buf)));
+                RUN_AFTER(once_flag[0], 1, NULL);
+                if (RUN_ONCE_DONE(once_flag[0])) step = 1;
+            }break;
+
+            /* ── Step 1: 前进到障碍区前 ── */
+            case 1:{
+                RUN_ONCE(once_flag[1],
+                    chasis_trapezoid_move(Q2_TASK1_FWD_VELOCITY, 0, 0,
+                        Q2_TASK1_FWD_ACCEL, Q2_TASK1_FWD_DECEL, Q2_TASK1_FWD_TIME));
+                RUN_AFTER(once_flag[1], Q2_TASK1_FWD_TIME, NULL);
+                if (RUN_ONCE_DONE(once_flag[1])) step = 2;
+            }break;
+
+            /* ── Step 2: 刹车 ── */
+            case 2:{
+                RUN_ONCE(once_flag[2],
+                    chasis_trapezoid_move(0, 0, 0,
+                        Q2_TASK1_BRAKE_ACCEL, Q2_TASK1_BRAKE_DECEL, Q2_TASK1_BRAKE_TIME));
+                RUN_AFTER(once_flag[2], Q2_TASK1_BRAKE_TIME, NULL);
+                if (RUN_ONCE_DONE(once_flag[2])) step = 3;
+            }break;
+
+            /* ── Step 3: 抱死 + 发送标志 + 等待门 (防止UART中断立即触发) ── */
+            case 3:{
+                RUN_ONCE(once_flag[3], chasis_brake());
+                RUN_AFTER(once_flag[3], Q2_TASK1_HOLD_TIME, NULL);
+                /* 抱死完成后: 发送标志 + 启动等待门 */
+                if (RUN_ONCE_DONE(once_flag[3]) && !once_flag[4].flag) {
+                    uart_send(barrier_buf, sizeof(barrier_buf));
+                    RUN_ONCE(once_flag[4], (void)0);
+                }
+                if (once_flag[4].flag && !RUN_ONCE_DONE(once_flag[4])) {
+                    RUN_AFTER(once_flag[4], Q2_TASK1_WAIT_GATE_TIME, NULL);
+                }
+                if (RUN_ONCE_DONE(once_flag[4])) step = 4;
+            }break;
+
+            /* ── Step 4: 上位机首次决策 (UART回调驱动) ── */
+            case 4:{
+                /* 左移分支: 监控超时或上位机true(flag[12]) */
+                if (once_flag[5].flag) {
+                    RUN_AFTER(once_flag[5], Q2_TASK1_LEFT_MAX_TIME, NULL);
+                    if (RUN_ONCE_DONE(once_flag[5]) || once_flag[12].flag)
+                        step = 5;
+                }
+                /* STOP1 降速: 设置定时, 完成后直接前行 */
+                if (once_flag[6].flag) {
+                    RUN_AFTER(once_flag[6], Q2_TASK1_STOP1_TIME, NULL);
+                }
+                if (RUN_ONCE_DONE(once_flag[6])) step = 8;
+                /* 通过完成 */
+                if (RUN_ONCE_DONE(once_flag[10])) {
+                    uint8_t done_buf[2] = {0x12, 0xFF};
+                    uart_send(done_buf, sizeof(done_buf));
+                    Task_Done();
+                }
+            }break;
+
+            /* ── Step 5: 左移结束后刹车抱死 ── */
+            case 5:{
+                RUN_ONCE(once_flag[7], chasis_brake());
+                RUN_AFTER(once_flag[7], Q2_TASK1_HOLD_TIME, NULL);
+                if (RUN_ONCE_DONE(once_flag[7])) step = 6;
+            }break;
+
+            /* ── Step 6: 上位机二次决策 (UART回调驱动, flag[7] done触发) ── */
+            case 6:{
+                /* 二次左移: 监控超时或上位机true(flag[13]) */
+                if (once_flag[8].flag) {
+                    RUN_AFTER(once_flag[8], Q2_TASK1_LEFT_MAX_TIME, NULL);
+                    if (RUN_ONCE_DONE(once_flag[8]) || once_flag[13].flag)
+                        step = 7;
+                }
+                /* 两次避障已完成(flag[8]左移done + flag[11]刹车done) → 前行 */
+                if (RUN_ONCE_DONE(once_flag[8]) && RUN_ONCE_DONE(once_flag[11]))
+                    step = 8;
+                /* 上位机true中断二次左移(flag[13]) + 刹车完成(flag[11]) → 前行 */
+                if (once_flag[13].flag && RUN_ONCE_DONE(once_flag[11]))
+                    step = 8;
+                /* STOP2 降速: 设置定时, 完成后直接前行 */
+                if (once_flag[9].flag) {
+                    RUN_AFTER(once_flag[9], Q2_TASK1_STOP1_TIME, NULL);
+                }
+                if (RUN_ONCE_DONE(once_flag[9])) step = 8;
+                /* 通过完成 */
+                if (RUN_ONCE_DONE(once_flag[10])) {
+                    uint8_t done_buf[2] = {0x12, 0xFF};
+                    uart_send(done_buf, sizeof(done_buf));
+                    Task_Done();
+                }
+            }break;
+
+            /* ── Step 7: 二次左移结束后刹车抱死 → 回到step 6等待再决策 */
+            case 7:{
+                RUN_ONCE(once_flag[11], chasis_brake());
+                RUN_AFTER(once_flag[11], Q2_TASK1_HOLD_TIME, NULL);
+                if (RUN_ONCE_DONE(once_flag[11])) step = 6;
+            }break;
+
+            /* ── Step 8: 最终前行通过 ── */
+            case 8:{
+                RUN_ONCE(once_flag[10],
+                    chasis_trapezoid_move(Q2_TASK1_PASS_VELOCITY, 0, 0,
+                        Q2_TASK1_PASS_ACCEL, Q2_TASK1_PASS_DECEL, Q2_TASK1_PASS_TIME));
+                RUN_AFTER(once_flag[10], Q2_TASK1_PASS_TIME, NULL);
+                if (RUN_ONCE_DONE(once_flag[10])) {
+                    uint8_t done_buf[2] = {0x12, 0xFF};
+                    uart_send(done_buf, sizeof(done_buf));
+                    Task_Done();
+                }
+            }break;
             }
-        }break;
-    case Q2_TASK2:
-        {
-            uint8_t q2_task2_start_buffer[2] = {Q2_TASK2, 0xFF};
-            RUN_ONCE(once_flag[0], uart_send(q2_task2_start_buffer, sizeof(q2_task2_start_buffer)));
-            RUN_AFTER(once_flag[0], 1, NULL);
-            if (RUN_ONCE_DONE(once_flag[0]))
-                Task_Done();
         }break;
     case Q1_TASK1:
         {
@@ -876,21 +929,53 @@ void UART_Rx_DMA_ToIdle_Callback(uint16_t size)
         { }break;
     case Q2_TASK1:
     {
-        if (RUN_ONCE_DONE(once_flag[1]) && uart_rx_buff[0] == 0x12)
-        {
-            if (!once_flag[2].flag && !once_flag[3].flag) {
-                /* 第一次判断 */
-                if (uart_rx_buff[1] == false) {
-                    RUN_ONCE(once_flag[2], chasis_trapezoid_move(0, Q2_TASK1_VELOCITY_1, 0, Q2_TASK1_ACCEL_1, Q2_TASK1_DECEL_1, Q2_TASK1_TIME_1));
-                } else {
-                    RUN_ONCE(once_flag[3], chasis_trapezoid_move(Q2_TASK1_VELOCITY_2, 0, 0, Q2_TASK1_ACCEL_2, Q2_TASK1_DECEL_2, Q2_TASK1_TIME_2));
-                }
-            } else if (once_flag[3].flag && !RUN_ONCE_DONE(once_flag[3])) {
-                /* 无障直行中重检到障碍 */
-                if (uart_rx_buff[1] == false) {
-                    g_q2_recheck = 1;
-                }
+        /*
+         * Q2_TASK1 UART 回调:
+         *   - 等待门 once_flag[4] 完成后才处理, 防止刹车后立即被中断触发
+         *   - 上位机协议: uart_rx_buff[0]=0x12, uart_rx_buff[1]=true/false
+         */
+        if (!RUN_ONCE_DONE(once_flag[4]))
+            break;
+
+        if (uart_rx_buff[0] != 0x12)
+            break;
+
+        /* ── 首次决策: flag[3] done 后, flag[5]=左移 / flag[6]=STOP1降速 ── */
+        if (RUN_ONCE_DONE(once_flag[3]) && !once_flag[5].flag && !once_flag[6].flag) {
+            if (uart_rx_buff[1] == false) {
+                RUN_ONCE(once_flag[5],
+                    chasis_trapezoid_move(0, Q2_TASK1_LEFT_VELOCITY, 0,
+                        Q2_TASK1_LEFT_ACCEL, Q2_TASK1_LEFT_DECEL, Q2_TASK1_LEFT_MAX_TIME));
+            } else if (uart_rx_buff[1] == true) {
+                RUN_ONCE(once_flag[6],
+                    chasis_trapezoid_move(0, 0, 0,
+                        Q2_TASK1_STOP1_ACCEL, Q2_TASK1_STOP1_DECEL, Q2_TASK1_STOP1_TIME));
             }
+        }
+
+        /* ── 左移中上位机发 true → 标记停止左移 ── */
+        if (once_flag[5].flag && !RUN_ONCE_DONE(once_flag[5])
+            && !once_flag[12].flag && uart_rx_buff[1] == true) {
+            RUN_ONCE(once_flag[12], (void)0);
+        }
+
+        /* ── 二次决策: flag[7] done 后, flag[8]=左移 / flag[9]=STOP2降速 ── */
+        if (RUN_ONCE_DONE(once_flag[7]) && !once_flag[8].flag && !once_flag[9].flag) {
+            if (uart_rx_buff[1] == false) {
+                RUN_ONCE(once_flag[8],
+                    chasis_trapezoid_move(0, Q2_TASK1_LEFT_VELOCITY, 0,
+                        Q2_TASK1_LEFT_ACCEL, Q2_TASK1_LEFT_DECEL, Q2_TASK1_LEFT_MAX_TIME));
+            } else if (uart_rx_buff[1] == true) {
+                RUN_ONCE(once_flag[9],
+                    chasis_trapezoid_move(0, 0, 0,
+                        Q2_TASK1_STOP1_ACCEL, Q2_TASK1_STOP1_DECEL, Q2_TASK1_STOP1_TIME));
+            }
+        }
+
+        /* ── 二次左移中上位机发 true → 标记停止 ── */
+        if (once_flag[8].flag && !RUN_ONCE_DONE(once_flag[8])
+            && !once_flag[13].flag && uart_rx_buff[1] == true) {
+            RUN_ONCE(once_flag[13], (void)0);
         }
     }break;
     default:

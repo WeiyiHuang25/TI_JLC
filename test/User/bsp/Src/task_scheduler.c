@@ -115,8 +115,14 @@ static menu_item_t menu_q1_items[] = {
 };
 #define Q1_CNT  (sizeof(menu_q1_items) / sizeof(menu_item_t))
 
+static menu_item_t menu_q2_t1_items[] = {
+    {"  RUN",         0,   NULL,   Q2_TASK1},
+    {"  return",      0,   NULL,   MENU_VAL_BACK},
+};
+#define Q2_T1_CNT  (sizeof(menu_q2_t1_items) / sizeof(menu_item_t))
+
 static menu_item_t menu_q2_items[] = {
-    {"T1",          0,   NULL,   Q2_TASK1},
+    {"T1",          Q2_T1_CNT,   menu_q2_t1_items,   0},
     {"return",       0, NULL, MENU_VAL_BACK},
 };
 #define Q2_CNT  (sizeof(menu_q2_items) / sizeof(menu_item_t))

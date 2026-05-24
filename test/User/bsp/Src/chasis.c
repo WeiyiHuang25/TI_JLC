@@ -7,6 +7,10 @@ extern void chasis_move_done_callback(void);
 
 chasis user_chasis = {0};
 bool    chasis_braked = false;
+uint8_t g_chasis_scale_q2 = 0;  /* 1=使用 Q2 独立比例修正 */
+
+void chasis_scale_use_q2(void) { g_chasis_scale_q2 = 1; }
+void chasis_scale_use_q1(void) { g_chasis_scale_q2 = 0; }
 
 /* =========================================================================
  * 麦轮运动学常�?(Mecanum Kinematics)
@@ -68,12 +72,24 @@ static void mec_inverse(const chasis *cs)
     if (user_chasis.RR.exp_rpm > 0.0f) user_chasis.RR.exp_rpm *= CHASIS_RR_POS_SCALE;
     else                               user_chasis.RR.exp_rpm *= CHASIS_RR_NEG_SCALE;
 
-    /* ── 运动方向级修正 (EzTuner.h: MEC_*_SCALE) ── */
+    /* ── 运动方向级修正 (EzTuner.h: MEC_*_SCALE / Q2_MEC_*_SCALE) ── */
     {
-        const float fwd[4]   = MEC_FWD_SCALE;
-        const float bwd[4]   = MEC_BWD_SCALE;
-        const float left[4]  = MEC_LEFT_SCALE;
-        const float right[4] = MEC_RIGHT_SCALE;
+        static uint8_t use_q2 = 0;
+        extern uint8_t g_chasis_scale_q2;
+
+        const float q1_fwd[4]   = MEC_FWD_SCALE;
+        const float q1_bwd[4]   = MEC_BWD_SCALE;
+        const float q1_left[4]  = MEC_LEFT_SCALE;
+        const float q1_right[4] = MEC_RIGHT_SCALE;
+        const float q2_fwd[4]   = Q2_MEC_FWD_SCALE;
+        const float q2_bwd[4]   = Q2_MEC_BWD_SCALE;
+        const float q2_left[4]  = Q2_MEC_LEFT_SCALE;
+        const float q2_right[4] = Q2_MEC_RIGHT_SCALE;
+
+        const float *fwd   = g_chasis_scale_q2 ? q2_fwd   : q1_fwd;
+        const float *bwd   = g_chasis_scale_q2 ? q2_bwd   : q1_bwd;
+        const float *left  = g_chasis_scale_q2 ? q2_left  : q1_left;
+        const float *right = g_chasis_scale_q2 ? q2_right : q1_right;
         const float *corr;
 
         if      (vx >  0.001f) corr = fwd;
