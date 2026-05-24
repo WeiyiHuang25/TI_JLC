@@ -30,6 +30,7 @@
 #define GIMBAL_MOVE_TEST            16
 #define ULTRASONIC_DEBUG            17
 #define Q2_TASK1                    18
+#define Q2_POS_MENU                 19
 #define US_SET_ORIGIN               20
 #define Q1_TASK1                    21
 #define Q1_TASK2                    22
@@ -37,6 +38,12 @@
 #define Q1_TASK1_SET                24
 #define Q1_TASK2_SET                25
 #define Q1_TASK3_SET                26
+#define POS1                        27
+#define POS2                        28
+#define POS3                        29
+#define POS1_SET                    30
+#define POS2_SET                    31
+#define POS3_SET                    32
 
 /* ============================ Q1 可调参数 ============================ */
 typedef struct {
@@ -50,6 +57,19 @@ typedef struct {
 extern q1_param_t g_q1_t1;
 extern q1_param_t g_q1_t2;
 extern q1_param_t g_q1_t3;
+
+/* ============================ POS 可调参数 ============================ */
+typedef struct {
+    uint32_t time_x;
+    uint32_t time_y;
+    uint32_t time_wz;
+    uint32_t pause_1;
+    uint32_t pause_2;
+} pos_param_t;
+
+extern pos_param_t g_pos1;
+extern pos_param_t g_pos2;
+extern pos_param_t g_pos3;
 
 /* ============================ 时序执行上下文 ============================ */
 typedef struct {

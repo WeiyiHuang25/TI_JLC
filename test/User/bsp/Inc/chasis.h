@@ -60,6 +60,7 @@ void chasis_linear_brake(uint32_t time_ms);
 void chasis_trapezoid_move(float vx, float vy, float wz, float accel, float decel, uint32_t time_ms);
 void chasis_scale_use_q2(void);
 void chasis_scale_use_q1(void);
+void chasis_scale_use_pos(void);
 
 
 

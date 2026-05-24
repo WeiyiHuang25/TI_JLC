@@ -50,8 +50,17 @@
  //                                FL    FR    RL    RR
 #define Q2_MEC_FWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 前进 */
 #define Q2_MEC_BWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 后退 */
-#define Q2_MEC_LEFT_SCALE  { 1.0f, 1.0f, 1.0f, 1.0f }   /* 左移 */
+#define Q2_MEC_LEFT_SCALE  { 1.0f, 1.0f, 01.f, 1.0f }   /* 左移 */
 #define Q2_MEC_RIGHT_SCALE { 1.0f, 1.0f, 1.0f, 1.0f }   /* 右移 */
+
+/* =========================================================================
+ * POS 专用 — 各轮比例修正（FL, FR, RL, RR 顺序）
+ * ========================================================================= */
+ //                                FL    FR    RL    RR
+#define POS_MEC_FWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 前进 */
+#define POS_MEC_BWD_SCALE   { 1.0f, 1.0f, 1.0f, 1.0f }   /* 后退 */
+#define POS_MEC_LEFT_SCALE  { 1.0f, 1.2f, 1.0f, 1.0f }   /* 左移 */
+#define POS_MEC_RIGHT_SCALE { 1.0f, 1.0f, 1.0f, 1.0f }   /* 右移 */
 
 
 
@@ -63,7 +72,7 @@
 
 #define Q2_TASK1_BRAKE_ACCEL     0.7f     // 刹车: 梯形加速度
 #define Q2_TASK1_BRAKE_DECEL     0.3f     // 刹车: 梯形减速度
-#define Q2_TASK1_BRAKE_TIME       200U    // 刹车时间(ms)
+#define Q2_TASK1_BRAKE_TIME       300U    // 刹车时间(ms)
 #define Q2_TASK1_HOLD_TIME        500U    // 刹车后抱死等待时间(ms)
 
 #define Q2_TASK1_WAIT_GATE_TIME   300U    // 发标志后等待时间(ms), 防止UART中断立即触发
@@ -74,14 +83,49 @@
 #define Q2_TASK1_STOP1_TIME       200U    // 上位机true后: 梯形降速时间(ms)
 
 #define Q2_TASK1_LEFT_VELOCITY   0.2f     // 左移扫描: 速度
-#define Q2_TASK1_LEFT_ACCEL      0.7f     // 左移扫描: 加速度
+#define Q2_TASK1_LEFT_ACCEL      2.0f     // 左移扫描: 加速度
 #define Q2_TASK1_LEFT_DECEL      0.3f     // 左移扫描: 减速度
 #define Q2_TASK1_LEFT_MAX_TIME   5000U    // 左移扫描最大时间(ms), 超时则停止
 
-#define Q2_TASK1_PASS_VELOCITY   0.5f     // 通过阶段: 速度
+#define Q2_TASK1_PASS_VELOCITY   0.4f     // 通过阶段: 速度
 #define Q2_TASK1_PASS_ACCEL      0.7f     // 通过阶段: 加速度
 #define Q2_TASK1_PASS_DECEL      0.3f     // 通过阶段: 减速度
 #define Q2_TASK1_PASS_TIME       1000U    // 通过障碍区的时间(ms)
+
+#define Q2_TASK1_RIGHT_K         1.0f     // 右移时间 = k * 左移总时间
+
+#define Q2_TASK1_RIGHT_VELOCITY  0.5f     // 右移: 速度
+#define Q2_TASK1_RIGHT_ACCEL     2.0f     // 右移: 加速度
+#define Q2_TASK1_RIGHT_DECEL     0.3f     // 右移: 减速度
+#define Q2_TASK1_RIGHT_TIME      5000U    // 右移: 最大时间(ms)
+
+/* POS1/2/3: X→Y→Wz 三步任务，各步参数独立可调 */
+#define POS1_TIME_X               2700U
+#define POS1_TIME_Y               3700U
+#define POS1_TIME_WZ              380U
+#define POS1_PAUSE_1              500U
+#define POS1_PAUSE_2              500U
+
+#define POS2_TIME_X               2700U
+#define POS2_TIME_Y               2600U
+#define POS2_TIME_WZ              720U
+#define POS2_PAUSE_1              500U
+#define POS2_PAUSE_2              500U
+
+#define POS3_TIME_X               2800U
+#define POS3_TIME_Y               680U
+#define POS3_TIME_WZ              550U
+#define POS3_PAUSE_1              500U
+#define POS3_PAUSE_2              500U
+
+/* POS: 底盘运动参数（速度/加减速，XY 独立） */
+#define POS_VX                   0.5f
+#define POS_VY                   0.5f
+#define POS_VWZ                 3.14f
+#define POS_ACCEL_X             0.7f
+#define POS_DECEL_X             0.3f
+#define POS_ACCEL_Y             0.7f
+#define POS_DECEL_Y             0.3f
 
 /* Q1: X→Y→Wz 三步任务，每步时间独立可调 */
 #define Q1_TASK1_TIME_X           2700U

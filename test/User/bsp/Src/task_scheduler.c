@@ -121,8 +121,30 @@ static menu_item_t menu_q2_t1_items[] = {
 };
 #define Q2_T1_CNT  (sizeof(menu_q2_t1_items) / sizeof(menu_item_t))
 
+static menu_item_t menu_pos1_items[] = {
+    {"  RUN",         0,   NULL,   POS1},
+    {"  SET",         0,   NULL,   POS1_SET},
+    {"  return",      0,   NULL,   MENU_VAL_BACK},
+};
+static menu_item_t menu_pos2_items[] = {
+    {"  RUN",         0,   NULL,   POS2},
+    {"  SET",         0,   NULL,   POS2_SET},
+    {"  return",      0,   NULL,   MENU_VAL_BACK},
+};
+static menu_item_t menu_pos3_items[] = {
+    {"  RUN",         0,   NULL,   POS3},
+    {"  SET",         0,   NULL,   POS3_SET},
+    {"  return",      0,   NULL,   MENU_VAL_BACK},
+};
+#define POS1_CNT  (sizeof(menu_pos1_items) / sizeof(menu_item_t))
+#define POS2_CNT  (sizeof(menu_pos2_items) / sizeof(menu_item_t))
+#define POS3_CNT  (sizeof(menu_pos3_items) / sizeof(menu_item_t))
+
 static menu_item_t menu_q2_items[] = {
     {"T1",          Q2_T1_CNT,   menu_q2_t1_items,   0},
+    {"P1",          POS1_CNT,    menu_pos1_items,     0},
+    {"P2",          POS2_CNT,    menu_pos2_items,     0},
+    {"P3",          POS3_CNT,    menu_pos3_items,     0},
     {"return",       0, NULL, MENU_VAL_BACK},
 };
 #define Q2_CNT  (sizeof(menu_q2_items) / sizeof(menu_item_t))

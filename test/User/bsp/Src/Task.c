@@ -29,6 +29,13 @@ volatile uint32_t g_us_pulse0 = 0;
 volatile uint32_t g_us_pulse1 = 0;
 
 uint32_t x_origin, y_origin;
+
+/* Q2 左移时间记录 */
+uint8_t  g_q2_left_count = 0;           /* 左移次数 */
+uint32_t g_q2_left_start_tick = 0;      /* 当前左移开始时刻 */
+uint32_t g_q2_left_time_ms[2] = {0, 0}; /* 各次左移持续时间(ms) */
+uint32_t g_q2_right_time_ms = 0;        /* 右移持续时间(ms) */
+
 /* Q1 可调参数（初始值来自 EzTuner.h 宏） */
 q1_param_t g_q1_t1 = {
     Q1_TASK1_TIME_X, Q1_TASK1_TIME_Y, Q1_TASK1_TIME_WZ,
@@ -43,13 +50,26 @@ q1_param_t g_q1_t3 = {
     Q1_TASK3_PAUSE_1, Q1_TASK3_PAUSE_2
 };
 
+pos_param_t g_pos1 = {
+    POS1_TIME_X, POS1_TIME_Y, POS1_TIME_WZ,
+    POS1_PAUSE_1, POS1_PAUSE_2
+};
+pos_param_t g_pos2 = {
+    POS2_TIME_X, POS2_TIME_Y, POS2_TIME_WZ,
+    POS2_PAUSE_1, POS2_PAUSE_2
+};
+pos_param_t g_pos3 = {
+    POS3_TIME_X, POS3_TIME_Y, POS3_TIME_WZ,
+    POS3_PAUSE_1, POS3_PAUSE_2
+};
+
 
 
 
 /* =========================================================================
  * 初始�?
  * ========================================================================= */
-static once_ctx_t once_flag[15];
+static once_ctx_t once_flag[20];
 
 void User_Init()
 {
@@ -362,8 +382,12 @@ void while_task(void)
                 /* 左移分支: 监控超时或上位机true(flag[12]) */
                 if (once_flag[5].flag) {
                     RUN_AFTER(once_flag[5], Q2_TASK1_LEFT_MAX_TIME, NULL);
-                    if (RUN_ONCE_DONE(once_flag[5]) || once_flag[12].flag)
+                    if (RUN_ONCE_DONE(once_flag[5]) || once_flag[12].flag) {
+                        /* 记录首次左移时间 */
+                        g_q2_left_time_ms[g_q2_left_count] = g_tick - once_flag[5].tick;
+                        g_q2_left_count++;
                         step = 5;
+                    }
                 }
                 /* STOP1 降速: 设置定时, 完成后直接前行 */
                 if (once_flag[6].flag) {
@@ -374,6 +398,7 @@ void while_task(void)
                 if (RUN_ONCE_DONE(once_flag[10])) {
                     uint8_t done_buf[2] = {0x12, 0xFF};
                     uart_send(done_buf, sizeof(done_buf));
+                    g_q2_left_count = 0;
                     Task_Done();
                 }
             }break;
@@ -390,8 +415,12 @@ void while_task(void)
                 /* 二次左移: 监控超时或上位机true(flag[13]) */
                 if (once_flag[8].flag) {
                     RUN_AFTER(once_flag[8], Q2_TASK1_LEFT_MAX_TIME, NULL);
-                    if (RUN_ONCE_DONE(once_flag[8]) || once_flag[13].flag)
+                    if (RUN_ONCE_DONE(once_flag[8]) || once_flag[13].flag) {
+                        /* 记录二次左移时间 */
+                        g_q2_left_time_ms[g_q2_left_count] = g_tick - once_flag[8].tick;
+                        g_q2_left_count++;
                         step = 7;
+                    }
                 }
                 /* 两次避障已完成(flag[8]左移done + flag[11]刹车done) → 前行 */
                 if (RUN_ONCE_DONE(once_flag[8]) && RUN_ONCE_DONE(once_flag[11]))
@@ -408,6 +437,7 @@ void while_task(void)
                 if (RUN_ONCE_DONE(once_flag[10])) {
                     uint8_t done_buf[2] = {0x12, 0xFF};
                     uart_send(done_buf, sizeof(done_buf));
+                    g_q2_left_count = 0;
                     Task_Done();
                 }
             }break;
@@ -425,12 +455,94 @@ void while_task(void)
                     chasis_trapezoid_move(Q2_TASK1_PASS_VELOCITY, 0, 0,
                         Q2_TASK1_PASS_ACCEL, Q2_TASK1_PASS_DECEL, Q2_TASK1_PASS_TIME));
                 RUN_AFTER(once_flag[10], Q2_TASK1_PASS_TIME, NULL);
-                if (RUN_ONCE_DONE(once_flag[10])) {
+                if (RUN_ONCE_DONE(once_flag[10]) && !once_flag[14].flag) {
+                    /* 梯形减速完成后, 再用梯形降速到0 + 抱死 */
+                    RUN_ONCE(once_flag[14],
+                        chasis_trapezoid_move(0, 0, 0,
+                            Q2_TASK1_BRAKE_ACCEL, Q2_TASK1_BRAKE_DECEL, Q2_TASK1_BRAKE_TIME));
+                }
+                if (once_flag[14].flag) {
+                    RUN_AFTER(once_flag[14], Q2_TASK1_BRAKE_TIME, chasis_brake());
+                }
+                if (RUN_ONCE_DONE(once_flag[14]) && !once_flag[15].flag) {
+                    /* 右移: 速度/加减速独立, 时间 = K * 左移总时间 */
+                    uint32_t right_time = (uint32_t)(Q2_TASK1_RIGHT_K *
+                        (float)(g_q2_left_time_ms[0] + g_q2_left_time_ms[1]));
+                    g_q2_right_time_ms = right_time;
+                    /* OLED 显示左移/右移时间 */
+                    OLED_Clear();
+                    OLED_ShowString(0, 0, (uint8_t *)"Q2 Time(ms)", 16);
+                    OLED_ShowString(0, 2, (uint8_t *)"L1:", 16);
+                    OLED_ShowNum(24, 2, g_q2_left_time_ms[0], 5, 16);
+                    OLED_ShowString(0, 4, (uint8_t *)"L2:", 16);
+                    OLED_ShowNum(24, 4, g_q2_left_time_ms[1], 5, 16);
+                    OLED_ShowString(0, 6, (uint8_t *)"R:", 16);
+                    OLED_ShowNum(24, 6, g_q2_right_time_ms, 5, 16);
+                    RUN_ONCE(once_flag[15],
+                        chasis_trapezoid_move(0, -Q2_TASK1_RIGHT_VELOCITY, 0,
+                            Q2_TASK1_RIGHT_ACCEL, Q2_TASK1_RIGHT_DECEL, g_q2_right_time_ms));
+                }
+                if (once_flag[15].flag) {
+                    RUN_AFTER(once_flag[15], g_q2_right_time_ms, NULL);
+                }
+                if (RUN_ONCE_DONE(once_flag[15]) && !once_flag[16].flag) {
+                    /* 右移梯形完成 → 梯形降速 + 抱死 */
+                    RUN_ONCE(once_flag[16],
+                        chasis_trapezoid_move(0, 0, 0,
+                            Q2_TASK1_BRAKE_ACCEL, Q2_TASK1_BRAKE_DECEL, Q2_TASK1_BRAKE_TIME));
+                }
+                if (once_flag[16].flag) {
+                    RUN_AFTER(once_flag[16], Q2_TASK1_BRAKE_TIME, chasis_brake());
+                }
+                if (RUN_ONCE_DONE(once_flag[16])) {
                     uint8_t done_buf[2] = {0x12, 0xFF};
                     uart_send(done_buf, sizeof(done_buf));
-                    Task_Done();
+                    g_q2_left_count = 0;
+                    Task_Jump(Q2_POS_MENU);
                 }
             }break;
+            }
+        }break;
+    case Q2_POS_MENU:
+        {
+            static uint8_t sel = 0;
+            static uint8_t drawn = 0;
+            const char *names[] = {"POS1", "POS2", "POS3", "return"};
+            const uint32_t modes[] = {POS1, POS2, POS3, TASK_INIT};
+            const uint8_t cnt = 4;
+
+            if (!drawn) {
+                OLED_Clear();
+                for (uint8_t i = 0; i < cnt; i++) {
+                    OLED_ShowString(0, i * 2, (uint8_t *)(sel == i ? ">" : " "), 16);
+                    OLED_ShowString(12, i * 2, (uint8_t *)names[i], 16);
+                }
+                /* 3秒无操作自动跳转默认项(POS1) */
+                RUN_ONCE(once_flag[0], (void)0);
+                drawn = 1;
+            }
+            /* PA18 切换选项, 同时重置倒计时 */
+            if (flag_next) {
+                flag_next = 0;
+                sel = (sel + 1) % cnt;
+                drawn = 0;
+                once_flag[0] = (once_ctx_t){0};
+            }
+            /* PB21 立即确认 */
+            if (flag_enter) {
+                flag_enter = 0;
+                uint32_t target = modes[sel];
+                sel = 0;
+                drawn = 0;
+                Task_Jump(target);
+            }
+            /* 3秒自动跳转 */
+            RUN_AFTER(once_flag[0], 3000, NULL);
+            if (RUN_ONCE_DONE(once_flag[0])) {
+                uint32_t target = modes[sel];
+                sel = 0;
+                drawn = 0;
+                Task_Jump(target);
             }
         }break;
     case Q1_TASK1:
@@ -584,6 +696,165 @@ void while_task(void)
     case Q1_TASK3_SET:
         {
             if (param_editor(&g_q1_t3, "SET T3"))
+                Task_Done();
+        }break;
+    case POS1:
+        {
+            static uint8_t step = 0;
+            if (!once_flag[0].flag) step = 0;
+            switch (step) {
+            case 0:
+                RUN_ONCE(once_flag[7], gimbal_enable());
+                RUN_AFTER(once_flag[7], 1, NULL);
+                if (!RUN_ONCE_DONE(once_flag[7])) break;
+                step = 1;
+                /* fall through */
+            case 1:
+                RUN_ONCE(once_flag[8], gimbal_return_zero());
+                RUN_AFTER(once_flag[8], 1000, NULL);
+                if (RUN_ONCE_DONE(once_flag[8])) step = 2;
+                break;
+            case 2:
+                chasis_scale_use_pos();
+                RUN_ONCE(once_flag[0], chasis_trapezoid_move(POS_VX, 0, 0, POS_ACCEL_X, POS_DECEL_X, g_pos1.time_x));
+                RUN_AFTER(once_flag[0], g_pos1.time_x, NULL);
+                if (RUN_ONCE_DONE(once_flag[0])) step = 3;
+                break;
+            case 3:
+                RUN_AFTER(once_flag[4], g_pos1.pause_1, NULL);
+                if (!RUN_ONCE_DONE(once_flag[4])) { RUN_ONCE(once_flag[4], (void)0); break; }
+                step = 4;
+                break;
+            case 4:
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, POS_VY, 0, POS_ACCEL_Y, POS_DECEL_Y, g_pos1.time_y));
+                RUN_AFTER(once_flag[1], g_pos1.time_y, NULL);
+                if (RUN_ONCE_DONE(once_flag[1])) step = 5;
+                break;
+            case 5:
+                RUN_AFTER(once_flag[5], g_pos1.pause_2, NULL);
+                if (!RUN_ONCE_DONE(once_flag[5])) { RUN_ONCE(once_flag[5], (void)0); break; }
+                step = 6;
+                break;
+            case 6:
+                RUN_ONCE(once_flag[2], chasis_set_velocity(0, 0, POS_VWZ));
+                RUN_AFTER(once_flag[2], g_pos1.time_wz, chasis_brake());
+                if (RUN_ONCE_DONE(once_flag[2])) step = 7;
+                break;
+            case 7:
+                step = 0;
+                Task_Done();
+                break;
+            }
+        }break;
+    case POS2:
+        {
+            static uint8_t step = 0;
+            if (!once_flag[0].flag) step = 0;
+            switch (step) {
+            case 0:
+                RUN_ONCE(once_flag[7], gimbal_enable());
+                RUN_AFTER(once_flag[7], 1, NULL);
+                if (!RUN_ONCE_DONE(once_flag[7])) break;
+                step = 1;
+                /* fall through */
+            case 1:
+                RUN_ONCE(once_flag[8], gimbal_return_zero());
+                RUN_AFTER(once_flag[8], 1000, NULL);
+                if (RUN_ONCE_DONE(once_flag[8])) step = 2;
+                break;
+            case 2:
+                chasis_scale_use_pos();
+                RUN_ONCE(once_flag[0], chasis_trapezoid_move(POS_VX, 0, 0, POS_ACCEL_X, POS_DECEL_X, g_pos2.time_x));
+                RUN_AFTER(once_flag[0], g_pos2.time_x, NULL);
+                if (RUN_ONCE_DONE(once_flag[0])) step = 3;
+                break;
+            case 3:
+                RUN_AFTER(once_flag[4], g_pos2.pause_1, NULL);
+                if (!RUN_ONCE_DONE(once_flag[4])) { RUN_ONCE(once_flag[4], (void)0); break; }
+                step = 4;
+                break;
+            case 4:
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, POS_VY, 0, POS_ACCEL_Y, POS_DECEL_Y, g_pos2.time_y));
+                RUN_AFTER(once_flag[1], g_pos2.time_y, NULL);
+                if (RUN_ONCE_DONE(once_flag[1])) step = 5;
+                break;
+            case 5:
+                RUN_AFTER(once_flag[5], g_pos2.pause_2, NULL);
+                if (!RUN_ONCE_DONE(once_flag[5])) { RUN_ONCE(once_flag[5], (void)0); break; }
+                step = 6;
+                break;
+            case 6:
+                RUN_ONCE(once_flag[2], chasis_set_velocity(0, 0, POS_VWZ));
+                RUN_AFTER(once_flag[2], g_pos2.time_wz, chasis_brake());
+                if (RUN_ONCE_DONE(once_flag[2])) step = 7;
+                break;
+            case 7:
+                step = 0;
+                Task_Done();
+                break;
+            }
+        }break;
+    case POS3:
+        {
+            static uint8_t step = 0;
+            if (!once_flag[0].flag) step = 0;
+            switch (step) {
+            case 0:
+                RUN_ONCE(once_flag[7], gimbal_enable());
+                RUN_AFTER(once_flag[7], 1, NULL);
+                if (!RUN_ONCE_DONE(once_flag[7])) break;
+                step = 1;
+                /* fall through */
+            case 1:
+                RUN_ONCE(once_flag[8], gimbal_return_zero());
+                RUN_AFTER(once_flag[8], 1000, NULL);
+                if (RUN_ONCE_DONE(once_flag[8])) step = 2;
+                break;
+            case 2:
+                chasis_scale_use_pos();
+                RUN_ONCE(once_flag[0], chasis_trapezoid_move(POS_VX, 0, 0, POS_ACCEL_X, POS_DECEL_X, g_pos3.time_x));
+                RUN_AFTER(once_flag[0], g_pos3.time_x, NULL);
+                if (RUN_ONCE_DONE(once_flag[0])) step = 3;
+                break;
+            case 3:
+                RUN_AFTER(once_flag[4], g_pos3.pause_1, NULL);
+                if (!RUN_ONCE_DONE(once_flag[4])) { RUN_ONCE(once_flag[4], (void)0); break; }
+                step = 4;
+                break;
+            case 4:
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, POS_VY, 0, POS_ACCEL_Y, POS_DECEL_Y, g_pos3.time_y));
+                RUN_AFTER(once_flag[1], g_pos3.time_y, NULL);
+                if (RUN_ONCE_DONE(once_flag[1])) step = 5;
+                break;
+            case 5:
+                RUN_AFTER(once_flag[5], g_pos3.pause_2, NULL);
+                if (!RUN_ONCE_DONE(once_flag[5])) { RUN_ONCE(once_flag[5], (void)0); break; }
+                step = 6;
+                break;
+            case 6:
+                RUN_ONCE(once_flag[2], chasis_set_velocity(0, 0, -POS_VWZ));
+                RUN_AFTER(once_flag[2], g_pos3.time_wz, chasis_brake());
+                if (RUN_ONCE_DONE(once_flag[2])) step = 7;
+                break;
+            case 7:
+                step = 0;
+                Task_Done();
+                break;
+            }
+        }break;
+    case POS1_SET:
+        {
+            if (param_editor((q1_param_t *)&g_pos1, "SET P1"))
+                Task_Done();
+        }break;
+    case POS2_SET:
+        {
+            if (param_editor((q1_param_t *)&g_pos2, "SET P2"))
+                Task_Done();
+        }break;
+    case POS3_SET:
+        {
+            if (param_editor((q1_param_t *)&g_pos3, "SET P3"))
                 Task_Done();
         }break;
     case US_SET_ORIGIN:
@@ -999,6 +1270,7 @@ void Task_Cleanup(void)
     for (uint8_t i = 0; i < sizeof(once_flag) / sizeof(once_flag[0]); i++) {
         once_flag[i] = (once_ctx_t){0};
     }
+    g_q2_left_count = 0;
 }
 
 void Key_A18_Pressed(void) 

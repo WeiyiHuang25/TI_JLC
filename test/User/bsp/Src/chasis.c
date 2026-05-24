@@ -7,10 +7,11 @@ extern void chasis_move_done_callback(void);
 
 chasis user_chasis = {0};
 bool    chasis_braked = false;
-uint8_t g_chasis_scale_q2 = 0;  /* 1=使用 Q2 独立比例修正 */
+uint8_t g_chasis_scale_mode = 0;  /* 0=Q1, 1=Q2, 2=POS */
 
-void chasis_scale_use_q2(void) { g_chasis_scale_q2 = 1; }
-void chasis_scale_use_q1(void) { g_chasis_scale_q2 = 0; }
+void chasis_scale_use_q2(void)  { g_chasis_scale_mode = 1; }
+void chasis_scale_use_q1(void)  { g_chasis_scale_mode = 0; }
+void chasis_scale_use_pos(void) { g_chasis_scale_mode = 2; }
 
 /* =========================================================================
  * 麦轮运动学常�?(Mecanum Kinematics)
@@ -72,10 +73,9 @@ static void mec_inverse(const chasis *cs)
     if (user_chasis.RR.exp_rpm > 0.0f) user_chasis.RR.exp_rpm *= CHASIS_RR_POS_SCALE;
     else                               user_chasis.RR.exp_rpm *= CHASIS_RR_NEG_SCALE;
 
-    /* ── 运动方向级修正 (EzTuner.h: MEC_*_SCALE / Q2_MEC_*_SCALE) ── */
+    /* ── 运动方向级修正 (EzTuner.h: MEC_*_SCALE / Q2_MEC_*_SCALE / POS_MEC_*_SCALE) ── */
     {
-        static uint8_t use_q2 = 0;
-        extern uint8_t g_chasis_scale_q2;
+        extern uint8_t g_chasis_scale_mode;
 
         const float q1_fwd[4]   = MEC_FWD_SCALE;
         const float q1_bwd[4]   = MEC_BWD_SCALE;
@@ -85,11 +85,19 @@ static void mec_inverse(const chasis *cs)
         const float q2_bwd[4]   = Q2_MEC_BWD_SCALE;
         const float q2_left[4]  = Q2_MEC_LEFT_SCALE;
         const float q2_right[4] = Q2_MEC_RIGHT_SCALE;
+        const float pos_fwd[4]   = POS_MEC_FWD_SCALE;
+        const float pos_bwd[4]   = POS_MEC_BWD_SCALE;
+        const float pos_left[4]  = POS_MEC_LEFT_SCALE;
+        const float pos_right[4] = POS_MEC_RIGHT_SCALE;
 
-        const float *fwd   = g_chasis_scale_q2 ? q2_fwd   : q1_fwd;
-        const float *bwd   = g_chasis_scale_q2 ? q2_bwd   : q1_bwd;
-        const float *left  = g_chasis_scale_q2 ? q2_left  : q1_left;
-        const float *right = g_chasis_scale_q2 ? q2_right : q1_right;
+        const float *fwd, *bwd, *left, *right;
+        if (g_chasis_scale_mode == 2) {
+            fwd = pos_fwd; bwd = pos_bwd; left = pos_left; right = pos_right;
+        } else if (g_chasis_scale_mode == 1) {
+            fwd = q2_fwd; bwd = q2_bwd; left = q2_left; right = q2_right;
+        } else {
+            fwd = q1_fwd; bwd = q1_bwd; left = q1_left; right = q1_right;
+        }
         const float *corr;
 
         if      (vx >  0.001f) corr = fwd;
