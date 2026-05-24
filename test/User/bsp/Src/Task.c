@@ -30,6 +30,20 @@ volatile uint32_t g_us_pulse1 = 0;
 
 uint32_t x_origin, y_origin;
 
+/* Q1 可调参数（初始值来自 EzTuner.h 宏） */
+q1_param_t g_q1_t1 = {
+    Q1_TASK1_TIME_X, Q1_TASK1_TIME_Y, Q1_TASK1_TIME_WZ,
+    Q1_TASK1_PAUSE_1, Q1_TASK1_PAUSE_2
+};
+q1_param_t g_q1_t2 = {
+    Q1_TASK2_TIME_X, Q1_TASK2_TIME_Y, Q1_TASK2_TIME_WZ,
+    Q1_TASK2_PAUSE_1, Q1_TASK2_PAUSE_2
+};
+q1_param_t g_q1_t3 = {
+    Q1_TASK3_TIME_X, Q1_TASK3_TIME_Y, Q1_TASK3_TIME_WZ,
+    Q1_TASK3_PAUSE_1, Q1_TASK3_PAUSE_2
+};
+
 
 
 
@@ -71,6 +85,68 @@ static uint32_t filter_average(uint32_t *s, uint8_t n)
         if (diff <= 200) { sum += s[i]; cnt++; }
     }
     return (cnt >= 3) ? (sum / cnt) : mean;
+}
+
+/* ========================================================================
+ *  Q1 参数编辑器（PA18=+1, PB21长按=下一位）
+ * ======================================================================== */
+static const char *SET_param_names[] = {"X:", "Y:", "Wz:", "P1:", "P2:"};
+#define SET_PARAM_CNT  5
+
+static bool param_editor(q1_param_t *p, const char *title)
+{
+    static int8_t  cur_param = 0;
+    static int8_t  cur_digit = 3;
+    static uint8_t need_redraw = 1;
+    static bool    finished = false;
+
+    if (finished) {
+        cur_param = 0; cur_digit = 3; need_redraw = 1;
+        finished = false;
+        return true;
+    }
+
+    /* PB21 长按 → 下一位 */
+    if (flag_long_b21) {
+        flag_long_b21 = 0;
+        cur_digit--;
+        if (cur_digit < 0) {
+            cur_digit = 3;
+            cur_param++;
+            if (cur_param >= SET_PARAM_CNT) {
+                finished = true;
+                return false;
+            }
+        }
+        need_redraw = 1;
+    }
+
+    /* PA18 短按 → 当前位 +1 (0-9 循环) */
+    if (flag_next) {
+        flag_next = 0;
+        uint32_t *vals = &p->time_x;
+        uint32_t div = 1;
+        for (int8_t i = 0; i < cur_digit; i++) div *= 10;
+        uint8_t d = (uint8_t)((vals[cur_param] / div) % 10);
+        d = (d + 1) % 10;
+        vals[cur_param] = vals[cur_param] - (vals[cur_param] / div % 10) * div + (uint32_t)d * div;
+        need_redraw = 1;
+    }
+
+    if (need_redraw) {
+        need_redraw = 0;
+        uint32_t val = (&p->time_x)[cur_param];
+        OLED_Clear();
+        OLED_ShowString(0, 0, (uint8_t *)title, 16);
+        OLED_ShowString(0, 2, (uint8_t *)SET_param_names[cur_param], 16);
+        OLED_ShowNum(24, 2, val, 4, 16);
+        /* 光标 */
+        uint8_t cx = 24 + (3 - cur_digit) * 8;
+        OLED_ShowString(cx, 4, (uint8_t *)"^", 16);
+        OLED_ShowString(0, 6, (uint8_t *)"+  Hold>next", 16);
+    }
+
+    return false;
 }
 
 void while_task(void)
@@ -259,28 +335,28 @@ void while_task(void)
                 if (RUN_ONCE_DONE(once_flag[8])) step = 2;
                 break;
             case 2: /* +X */
-                RUN_ONCE(once_flag[0], chasis_trapezoid_move(Q1_VX, 0, 0, Q1_ACCEL_X, Q1_DECEL_X, Q1_TASK1_TIME_X));
-                RUN_AFTER(once_flag[0], Q1_TASK1_TIME_X, NULL);
+                RUN_ONCE(once_flag[0], chasis_trapezoid_move(Q1_VX, 0, 0, Q1_ACCEL_X, Q1_DECEL_X, g_q1_t1.time_x));
+                RUN_AFTER(once_flag[0], g_q1_t1.time_x, NULL);
                 if (RUN_ONCE_DONE(once_flag[0])) step = 3;
                 break;
             case 3: /* Pause X→Y */
-                RUN_AFTER(once_flag[4], Q1_TASK1_PAUSE_1, NULL);
+                RUN_AFTER(once_flag[4], g_q1_t1.pause_1, NULL);
                 if (!RUN_ONCE_DONE(once_flag[4])) { RUN_ONCE(once_flag[4], (void)0); break; }
                 step = 4;
                 break;
             case 4: /* +Y */
-                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, Q1_VY, 0, Q1_ACCEL_Y, Q1_DECEL_Y, Q1_TASK1_TIME_Y));
-                RUN_AFTER(once_flag[1], Q1_TASK1_TIME_Y, NULL);
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, Q1_VY, 0, Q1_ACCEL_Y, Q1_DECEL_Y, g_q1_t1.time_y));
+                RUN_AFTER(once_flag[1], g_q1_t1.time_y, NULL);
                 if (RUN_ONCE_DONE(once_flag[1])) step = 5;
                 break;
             case 5: /* Pause Y→Wz */
-                RUN_AFTER(once_flag[5], Q1_TASK1_PAUSE_2, NULL);
+                RUN_AFTER(once_flag[5], g_q1_t1.pause_2, NULL);
                 if (!RUN_ONCE_DONE(once_flag[5])) { RUN_ONCE(once_flag[5], (void)0); break; }
                 step = 6;
                 break;
             case 6: /* +Wz */
                 RUN_ONCE(once_flag[2], chasis_set_velocity(0, 0, Q1_VWZ));
-                RUN_AFTER(once_flag[2], Q1_TASK1_TIME_WZ, chasis_brake());
+                RUN_AFTER(once_flag[2], g_q1_t1.time_wz, chasis_brake());
                 if (RUN_ONCE_DONE(once_flag[2])) step = 7;
                 break;
             case 7:
@@ -305,28 +381,28 @@ void while_task(void)
                 if (RUN_ONCE_DONE(once_flag[8])) step = 2;
                 break;
             case 2: /* +X */
-                RUN_ONCE(once_flag[0], chasis_trapezoid_move(Q1_VX, 0, 0, Q1_ACCEL_X, Q1_DECEL_X, Q1_TASK2_TIME_X));
-                RUN_AFTER(once_flag[0], Q1_TASK2_TIME_X, NULL);
+                RUN_ONCE(once_flag[0], chasis_trapezoid_move(Q1_VX, 0, 0, Q1_ACCEL_X, Q1_DECEL_X, g_q1_t2.time_x));
+                RUN_AFTER(once_flag[0], g_q1_t2.time_x, NULL);
                 if (RUN_ONCE_DONE(once_flag[0])) step = 3;
                 break;
             case 3: /* Pause X→Y */
-                RUN_AFTER(once_flag[4], Q1_TASK2_PAUSE_1, NULL);
+                RUN_AFTER(once_flag[4], g_q1_t2.pause_1, NULL);
                 if (!RUN_ONCE_DONE(once_flag[4])) { RUN_ONCE(once_flag[4], (void)0); break; }
                 step = 4;
                 break;
             case 4: /* +Y */
-                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, Q1_VY, 0, Q1_ACCEL_Y, Q1_DECEL_Y, Q1_TASK2_TIME_Y));
-                RUN_AFTER(once_flag[1], Q1_TASK2_TIME_Y, NULL);
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, Q1_VY, 0, Q1_ACCEL_Y, Q1_DECEL_Y, g_q1_t2.time_y));
+                RUN_AFTER(once_flag[1], g_q1_t2.time_y, NULL);
                 if (RUN_ONCE_DONE(once_flag[1])) step = 5;
                 break;
             case 5: /* Pause Y→Wz */
-                RUN_AFTER(once_flag[5], Q1_TASK2_PAUSE_2, NULL);
+                RUN_AFTER(once_flag[5], g_q1_t2.pause_2, NULL);
                 if (!RUN_ONCE_DONE(once_flag[5])) { RUN_ONCE(once_flag[5], (void)0); break; }
                 step = 6;
                 break;
             case 6: /* +Wz */
                 RUN_ONCE(once_flag[2], chasis_set_velocity(0, 0, Q1_VWZ));
-                RUN_AFTER(once_flag[2], Q1_TASK2_TIME_WZ, chasis_brake());
+                RUN_AFTER(once_flag[2], g_q1_t2.time_wz, chasis_brake());
                 if (RUN_ONCE_DONE(once_flag[2])) step = 7;
                 break;
             case 7:
@@ -351,28 +427,28 @@ void while_task(void)
                 if (RUN_ONCE_DONE(once_flag[8])) step = 2;
                 break;
             case 2: /* +X */
-                RUN_ONCE(once_flag[0], chasis_trapezoid_move(Q1_VX, 0, 0, Q1_ACCEL_X, Q1_DECEL_X, Q1_TASK3_TIME_X));
-                RUN_AFTER(once_flag[0], Q1_TASK3_TIME_X, NULL);
+                RUN_ONCE(once_flag[0], chasis_trapezoid_move(Q1_VX, 0, 0, Q1_ACCEL_X, Q1_DECEL_X, g_q1_t3.time_x));
+                RUN_AFTER(once_flag[0], g_q1_t3.time_x, NULL);
                 if (RUN_ONCE_DONE(once_flag[0])) step = 3;
                 break;
             case 3: /* Pause X→Y */
-                RUN_AFTER(once_flag[4], Q1_TASK3_PAUSE_1, NULL);
+                RUN_AFTER(once_flag[4], g_q1_t3.pause_1, NULL);
                 if (!RUN_ONCE_DONE(once_flag[4])) { RUN_ONCE(once_flag[4], (void)0); break; }
                 step = 4;
                 break;
             case 4: /* +Y */
-                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, Q1_VY, 0, Q1_ACCEL_Y, Q1_DECEL_Y, Q1_TASK3_TIME_Y));
-                RUN_AFTER(once_flag[1], Q1_TASK3_TIME_Y, NULL);
+                RUN_ONCE(once_flag[1], chasis_trapezoid_move(0, Q1_VY, 0, Q1_ACCEL_Y, Q1_DECEL_Y, g_q1_t3.time_y));
+                RUN_AFTER(once_flag[1], g_q1_t3.time_y, NULL);
                 if (RUN_ONCE_DONE(once_flag[1])) step = 5;
                 break;
             case 5: /* Pause Y→Wz */
-                RUN_AFTER(once_flag[5], Q1_TASK3_PAUSE_2, NULL);
+                RUN_AFTER(once_flag[5], g_q1_t3.pause_2, NULL);
                 if (!RUN_ONCE_DONE(once_flag[5])) { RUN_ONCE(once_flag[5], (void)0); break; }
                 step = 6;
                 break;
             case 6: /* +Wz */
                 RUN_ONCE(once_flag[2], chasis_set_velocity(0, 0, -Q1_VWZ));
-                RUN_AFTER(once_flag[2], Q1_TASK3_TIME_WZ, chasis_brake());
+                RUN_AFTER(once_flag[2], g_q1_t3.time_wz, chasis_brake());
                 if (RUN_ONCE_DONE(once_flag[2])) step = 7;
                 break;
             case 7:
@@ -380,6 +456,21 @@ void while_task(void)
                 Task_Done();
                 break;
             }
+        }break;
+    case Q1_TASK1_SET:
+        {
+            if (param_editor(&g_q1_t1, "SET T1"))
+                Task_Done();
+        }break;
+    case Q1_TASK2_SET:
+        {
+            if (param_editor(&g_q1_t2, "SET T2"))
+                Task_Done();
+        }break;
+    case Q1_TASK3_SET:
+        {
+            if (param_editor(&g_q1_t3, "SET T3"))
+                Task_Done();
         }break;
     case US_SET_ORIGIN:
         {
@@ -772,4 +863,8 @@ void Key_A18_Pressed(void)
 void Key_B21_Pressed(void) 
 {
     flag_enter = 1;
+}
+void Key_B21_Long(void)
+{
+    /* 长按标志已在 KEY_Poll 中置位，此处可留空 */
 }

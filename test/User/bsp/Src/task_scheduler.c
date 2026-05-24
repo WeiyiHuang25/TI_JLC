@@ -88,10 +88,29 @@ static menu_item_t menu_debug_items[] = {
 
 // 问题子任务
 
+static menu_item_t menu_t1_items[] = {
+    {"  RUN",         0,   NULL,   Q1_TASK1},
+    {"  SET",         0,   NULL,   Q1_TASK1_SET},
+    {"  return",      0,   NULL,   MENU_VAL_BACK},
+};
+static menu_item_t menu_t2_items[] = {
+    {"  RUN",         0,   NULL,   Q1_TASK2},
+    {"  SET",         0,   NULL,   Q1_TASK2_SET},
+    {"  return",      0,   NULL,   MENU_VAL_BACK},
+};
+static menu_item_t menu_t3_items[] = {
+    {"  RUN",         0,   NULL,   Q1_TASK3},
+    {"  SET",         0,   NULL,   Q1_TASK3_SET},
+    {"  return",      0,   NULL,   MENU_VAL_BACK},
+};
+#define T1_CNT  (sizeof(menu_t1_items) / sizeof(menu_item_t))
+#define T2_CNT  (sizeof(menu_t2_items) / sizeof(menu_item_t))
+#define T3_CNT  (sizeof(menu_t3_items) / sizeof(menu_item_t))
+
 static menu_item_t menu_q1_items[] = {
-    {"T1",          0,   NULL,   Q1_TASK1},
-    {"T2",          0,   NULL,   Q1_TASK2},
-    {"T3",          0,   NULL,   Q1_TASK3},
+    {"T1",          T1_CNT,   menu_t1_items,   0},
+    {"T2",          T2_CNT,   menu_t2_items,   0},
+    {"T3",          T3_CNT,   menu_t3_items,   0},
     {"return",       0, NULL, MENU_VAL_BACK},
 };
 #define Q1_CNT  (sizeof(menu_q1_items) / sizeof(menu_item_t))

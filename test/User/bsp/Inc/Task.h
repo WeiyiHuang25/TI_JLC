@@ -35,8 +35,22 @@
 #define Q1_TASK1                    21
 #define Q1_TASK2                    22
 #define Q1_TASK3                    23
+#define Q1_TASK1_SET                24
+#define Q1_TASK2_SET                25
+#define Q1_TASK3_SET                26
 
-/* ============================ 时序执行上下文 ============================ */
+/* ============================ Q1 可调参数 ============================ */
+typedef struct {
+    uint32_t time_x;
+    uint32_t time_y;
+    uint32_t time_wz;
+    uint32_t pause_1;
+    uint32_t pause_2;
+} q1_param_t;
+
+extern q1_param_t g_q1_t1;
+extern q1_param_t g_q1_t2;
+extern q1_param_t g_q1_t3;
 typedef struct {
     uint8_t  flag;      /* RUN_ONCE 是否已触发         */
     uint8_t  after_done;/* RUN_AFTER 是否已触发        */

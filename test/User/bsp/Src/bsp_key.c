@@ -4,6 +4,8 @@
 static volatile uint32_t key_tick[2] = {0};
 extern volatile uint32_t g_tick;
 
+volatile uint8_t flag_long_b21 = 0;
+
 /* =========================================================================
  * 初始化：使能 GPIO 中断
  * ========================================================================= */
@@ -45,6 +47,8 @@ void GROUP1_IRQHandler(void)
  * ========================================================================= */
 void KEY_Poll(void)
 {
+    static uint8_t b21_long_fired = 0;
+
     /* PA18: 默认低，上升沿 → 按下为高 */
     if (key_tick[0] && (g_tick - key_tick[0] >= KEY_DEBOUNCE_MS)) {
         key_tick[0] = 0;
@@ -52,11 +56,20 @@ void KEY_Poll(void)
             Key_A18_Pressed();
     }
 
-    /* PB21: 默认高(上拉)，下降沿 → 按下为低 */
-    if (key_tick[1] && (g_tick - key_tick[1] >= KEY_DEBOUNCE_MS)) {
-        key_tick[1] = 0;
-        if (!DL_GPIO_readPins(KEY_B21_PORT, KEY_B21_PIN))
-            Key_B21_Pressed();
+    /* PB21: 默认高(上拉)，下降沿 → 按下为低，支持长按 */
+    if (key_tick[1]) {
+        bool pressed = !DL_GPIO_readPins(KEY_B21_PORT, KEY_B21_PIN);
+        if (pressed && (g_tick - key_tick[1] >= KEY_LONG_MS) && !b21_long_fired) {
+            b21_long_fired = 1;
+            flag_long_b21 = 1;
+            Key_B21_Long();
+        }
+        if (!pressed) {
+            if ((g_tick - key_tick[1] >= KEY_DEBOUNCE_MS) && !b21_long_fired)
+                Key_B21_Pressed();
+            key_tick[1] = 0;
+            b21_long_fired = 0;
+        }
     }
 }
 
